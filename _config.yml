@@ -20,8 +20,9 @@
 
 title: ましゅまろ学習帳
 # email: your-email@example.com
-description: >- # this means to ignore newlines until "baseurl:"
-  ゆるっとふわっと勉強中。
+description: | # this means to ignore newlines until "baseurl:"
+  ゆるっとふわっと勉強中。  
+  Crieitはこちら： https://crieit.net/users/marshmallow444
 baseurl: "/tech_blog" # the subpath of your site, e.g. /blog
 url: "https://marshmallow444.github.io" # the base hostname & protocol for your site, e.g. http://example.com
 # twitter_username: jekyllrb
