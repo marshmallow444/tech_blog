@@ -128,18 +128,134 @@ tags: ラビット・チャレンジ E資格 機械学習
 
 + $(p, p)$, $(q, q)$の成分を0に変える
 + $(p, q)$, $(q, p)$の成分を1に変える
-
-#### 逆行列
-
-まるで逆数のような働きをする行列
-
-#### 単位行列
+### 単位行列
 
 かけてもかけられても相手が変化しない行列
 
+\\[
+    I = 
+        \begin{pmatrix}
+            1 &   &         \\\\  
+              & 1 &         \\\\  
+              &   & \ddots  \\\\  
+        \end{pmatrix}
+\\]
 
-## 線形代数学 (固有値)
+### 逆行列
+
+まるで逆数のような働きをする行列
+
+$AA^{-1} = A^{-1}A = I$  
+(「-1乗」ではなく 「**inverse**」)
+
+掃き出し法などで求める
+
+#### 逆行列が存在しない行列  
+
+解がない/一組に定まらない連立方程式の係数を抜き出したような行列  
+形式的には
+
+\begin{pmatrix}
+    a & b       \\\\  
+    c & d       \\\\  
+\end{pmatrix} という行列があったとき、$ad - bc = 0$  
+
+また  
+
+\\[
+    \begin{pmatrix}
+        a & b       \\\\  
+        c & d       \\\\  
+    \end{pmatrix} =
+    \begin{pmatrix}
+        \vec{v_1}       \\\\  
+        \vec{v_2}       \\\\  
+    \end{pmatrix}
+\\]
+と考えたとき、二つのベクトルに囲まれた  
+`平行四辺形の面積 = 0`  
+の場合は逆行列が存在しない
 
 ## 統計学1
+### 行列式(determinant)
+
+上記の平行四辺形の面積が逆行列の有無を示す  
+これを  
+\\[
+    \begin{vmatrix}
+        a & b       \\\\  
+        c & d       \\\\  
+    \end{vmatrix} =
+    \begin{vmatrix}
+        \vec{v_1}       \\\\  
+        \vec{v_2}       \\\\  
+    \end{vmatrix}
+\\]  
+と表し、**逆行列**と呼ぶ
+
+#### 特徴  
++ 同じ行ベクトルが含まれていると行列式は0
++ 1つのベクトルが$\lambda$倍されると行列式は$\lambda$倍される
++ 他の成分が全部同じで$i$番目のベクトルだけが違う場合、行列式の足し合わせになる
+
+3つ以上のベクトルからできている行列式は展開できる
+
+\\[
+    \begin{vmatrix}
+        \vec{v_1} \\\\  
+        \vec{v_2} \\\\  
+        \vec{v_3} 
+    \end{vmatrix} = 
+    \begin{vmatrix}
+        a & b & c \\\\  
+        d & e & f \\\\  
+        g & h & i 
+    \end{vmatrix} = 
+    \begin{vmatrix}
+        a & b & c \\\\  
+        0 & e & f \\\\  
+        0 & h & i 
+    \end{vmatrix} + 
+    \begin{vmatrix}
+        0 & b & c \\\\  
+        d & e & f \\\\  
+        0 & h & i 
+    \end{vmatrix} + 
+    \begin{vmatrix}
+        0 & b & c \\\\  
+        0 & e & f \\\\  
+        g & h & i 
+    \end{vmatrix}
+\\]  
+
+\\[
+    = a
+    \begin{vmatrix}
+        e & f \\\\  
+        h & i 
+    \end{vmatrix} - 
+    d
+    \begin{vmatrix}
+        b & c \\\\  
+        h & i 
+    \end{vmatrix} +
+    g
+    \begin{vmatrix}
+        b & c \\\\  
+        e & f 
+    \end{vmatrix}
+\\]
+
+#### 行列式の求め方
+
+\\[
+    \begin{vmatrix}
+        a & b       \\\\  
+        c & d       \\\\  
+    \end{vmatrix} = ad - bc
+\\]
+3つ以上のベクトルでできている場合は展開して求める
+
+参考：[行列式の基本的な性質と公式](https://risalc.info/src/determinant-formulas.html)
 
 ## 統計学2
