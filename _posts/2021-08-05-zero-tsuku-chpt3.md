@@ -1,11 +1,11 @@
 ---
 layout: post
-title: "【ゼロから作るDeepLearning】Google Colabでコードを動かす "
+title: "【ゼロから作るDeepLearning】Google Colabでコードを動かす(3章)"
 tags: 機械学習 ゼロつく
 ---
 
 「ゼロから作るDeepLearning」のサンプルコードをGoogle Colaboratoryで動かしてみている。  
-うまく動かなかったところをメモしておく。
+3章でうまく動かなかったところをメモしておく。
 
 ### 3.6.1 MNISTデータセット
 #### p.73  
@@ -38,11 +38,12 @@ drive.mount('/content/drive', force_remount=True)
 ```
 上記コードを実行後、ブラウザ上で認証手続きを行うとマウントできる  
 インポートは以下の要領で行う  
+
 ```
 import sys
 sys.path.append('/content/drive/My Drive/ColabNotebooks/path/to/dataset/')
 from mnist import load_mnist
- ```
+```
 
 + `x_train`や`x_test`のサイズに注意
     + サンプルコードでは768個の要素からなる1次元配列として取得されるが、kerasで取得したデータは28*28の2次元配列のまま取得される
@@ -68,6 +69,31 @@ def img_show(img):
     display(pil_img)
 ```
 
-[^1]: https://stackoverflow.com/questions/66577151/http-error-when-trying-to-download-mnist-data  
-[^2]: https://colab.research.google.com/drive/1xckYBNOaRYojHrJVy6-D8O57bcjW8v4P#scrollTo=jnMMc6ivvI_a  
-[^3]: https://qiita.com/kaityo256/items/ce34f412ceec1b72755d
+### 3.6.2 ニューラルネットワークの推論処理
+#### p76〜77
+
+【問題点】  
+MNISTのデータをkerasから取得したが、データのshapeがサンプルコードと違う  
+
+ 【対策】  
+以下の要領で変換したデータを使う  
+
+```  
+reshaped_data = x_test.reshape(10000, 784)  
+```  
+
+【備考】  
+サンプルコードでは画像データを正規化しているので、同様の処理をすると本に書かれている通りのAccuracyが出る  
+
+```
+normalized_data = x_test.reshape(10000, 784) / 255.0
+```
+<br>
+
+---
+
+<br>
+
+[^1]: [https://stackoverflow.com/questions/66577151/http-error-when-trying-to-download-mnist-data](https://stackoverflow.com/questions/66577151/http-error-when-trying-to-download-mnist-data)  
+[^2]: [https://colab.research.google.com/drive/1xckYBNOaRYojHrJVy6-D8O57bcjW8v4P#scrollTo=jnMMc6ivvI_a](https://colab.research.google.com/drive/1xckYBNOaRYojHrJVy6-D8O57bcjW8v4P#scrollTo=jnMMc6ivvI_a)  
+[^3]: [https://qiita.com/kaityo256/items/ce34f412ceec1b72755d](https://qiita.com/kaityo256/items/ce34f412ceec1b72755d)
