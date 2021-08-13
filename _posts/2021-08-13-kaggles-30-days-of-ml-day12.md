@@ -15,12 +15,12 @@ Kaggleの初心者向けプログラム「30 Days of ML」に挑戦中。
 1. the Intermediate ML Courseの[Lesson 3のチュートリアル](https://www.kaggle.com/alexisbcook/categorical-variables)を読む  
 1. the Intermediate ML Courseの[Lesson 3のexercise](https://www.kaggle.com/kernels/fork/3370279)を実施する  
 
-## the Intermediate to ML CourseのLesson 1の内容
+## the Intermediate ML CourseのLesson 1の内容
 
 + Introduction
     + `RandomForestRegressor`を使って、家の価格の予測をしてみる(Intro to ML Courseのおさらい的な感じ)
 
-## the Intermediate to ML CourseのLesson 2の内容
+## the Intermediate ML CourseのLesson 2の内容
 
 + 欠損値
 
@@ -35,7 +35,7 @@ Kaggleの初心者向けプログラム「30 Days of ML」に挑戦中。
         + 欠損値の数が20%以内の場合は削除しない方が良いことが多い
     + `Imputer`の`fit_transform()`と`transform()`の違いについては[こちら](https://qiita.com/makopo/items/35c103e2df2e282f839a)を参照
 
-## the Intermediate to ML CourseのLesson 3の内容
+## the Intermediate ML CourseのLesson 3の内容
 
 + カテゴリ変数
 
