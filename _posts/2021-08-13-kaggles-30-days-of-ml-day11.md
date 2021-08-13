@@ -30,3 +30,4 @@ Kaggleの初心者向けプログラム「30 Days of ML」に挑戦中。
     1. `Version History`にて、提出したいバージョンの右側にある`...`をクリックする
     1. `Submit to Competition` > `Submit`を選択する
     1. もしくは、`Open in Viewer` > `Output`タブ(画面右側) > `Submit` > `Submit`を選択する
++ featuresを増やした時に`NaN`が含まれる箇所は`fillna()`関数で置換することで対応できた
