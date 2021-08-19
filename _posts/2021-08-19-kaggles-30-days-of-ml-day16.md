@@ -20,7 +20,7 @@ Kaggleの初心者向けプログラム「30 Days of ML」に挑戦中。
 + 昨日作ったNotebookの改良
     + RandomForest→XGBoostに置き換えてみる
 + LGBMを使ってみる
-+ [ローカルでKaggleのソースを動かしてみる](./run-kaggles-code-in-local-env.md)
++ [ローカルでKaggleのソースを動かしてみる](./run-kaggles-code-in-local-env.html)
     + KaggleのKernel上だと実行にかなり長い時間がかかったので、試してみた
 
 ## 覚えておきたいこと
