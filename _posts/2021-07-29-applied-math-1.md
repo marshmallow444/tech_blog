@@ -360,6 +360,31 @@ $h \notin S$ ← $h$は集合$S$の要素ではない
 $M = \\{ c, d, e \\}$  
 $M \subset S$ ← $M$は$S$の一部  
 
+和集合 |  $A \cap B$
+共通部分 |  $A \cup B$
+絶対補 |  $U \setminus A = \bar{A}$
+相対補 | $B \setminus A$
+
+## 確率
+
+$P(A) = \dfrac{n(A)}{n(U)}$  
+
++ **頻度確率**(客観確率)：発生する頻度
++ **ベイズ確率**(主観確率)：信念の度合い
+
+#### 条件付き確率  
+$P(B | A)$ ←$A$という条件のもと、$B$である  
+$P(B | A) = \dfrac{P(A \cap B)}{P(B)} = \dfrac{n(A \cap B)}{n(B)}$
+
+#### 独立な事象の同時確率  
+事象Aと事象Bに因果関係がない場合、  
+$P(A \cap B) = P(A)P(B|A) = P(A)P(B)$  
+
+$P(A \cup B) = P(A) + P(B) - P(A \cap B)$  
+
+#### ベイズ則  
+$P(A)P(B|A) = P(B)P(A|B)$
+
 ---
 
 # 【統計学2】
