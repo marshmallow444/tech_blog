@@ -514,3 +514,144 @@ $P(x|\lambda, n) = \underbrace{ \dfrac{n!}{x!(n - x)!} }_{二項係数} \lambda 
 + **一致性**：サンプル数が大きいほど母集団の値に近くなる
 + **不偏性**：サンプル数がいくつでも、その期待値は母集団の値と同様
     + $E(\hat{\theta}) = \theta$
+
+#### 標本分散
+
+\\[
+    \hat{\sigma} ^ 2 = \dfrac{1}{n} \sum_{i=1}^{n}(x_i - \underbrace{ \bar{x} }_{平均}) ^ 2
+\\]
+
+#### 普遍分散
+
+→標本分散のばらつきを修正(サンプル数に応じて変わるのを防ぐ)  
+
+\\[
+    s ^ 2 = \dfrac{n}{n - 1} \times \dfrac{1}{n} \sum_{i=1}^{n} (x_i - \bar{x}) ^ 2 = \dfrac{1}{n-1}(x_i - \bar{x}) ^ 2
+\\]
+
+## 情報科学
+
+#### 自己情報量
+
+| 対数の底 | 単位 |
+|---|---|
+| 2 | bit |
+| e (ネイピア) | nat (natural) |
+
+$I(x) = - \mathrm{log}(P(x)) = \mathrm{log}(W(x))$  
+
+ON/OFFのスイッチで情報を伝えるとき、情報の種類数に対して必要なスイッチの数は？  
+→事象の数$W$の$\mathrm{log}$を取ることで求められる  
+
+#### シャノンエントロピ
+
+= **微分エントロピ** (微分しているわけではない)  
+自己情報量の期待値 (情報の珍しさの平均値みたいなもの)  
+
+\\[
+    H(x) = E( I(x) ) \\\\  
+    = -E \Bigl( \mathrm{log} \bigl(P(x) \bigr) \Bigr) \\\\  
+    = - \sum \Bigl( P(x) \mathrm{log} \bigl(P(x) \bigr) \Bigr)
+\\]
+
+#### カルバック・ライブラー ダイバージェンス
+
+同じ事象・確率変数における異なる確率分布$P, Q$の違いを表す  
+→想定していた確率分布：$Q$、実際の確率分布：$P$  
+距離のようなもの(厳密には違う)  
+例：普通のコインと不正なコインの、表と裏が出る確率の違い  
+
+\\[
+    D_{KL}(P||Q) = \overbrace{
+        \mathbb{E}_{x \sim P}
+    }^{(1)} \biggl[ 
+        \overbrace{ 
+            \mathrm{log} \dfrac{P(x)}{Q(x)} 
+        }^{(2)}
+    \biggr]
+\\]
+
+\\[
+    = \overbrace{ 
+         \mathbb{E}_{x \sim P} 
+    }^{(1)} \bigl[ 
+        \overbrace{ 
+            \mathrm{log}P(x) - \mathrm{log}Q(x) 
+        }^{(2)}
+    \bigr]
+\\]
+
+`(1)` について、  
+
+\\[
+    E \bigl( f(x) \bigr) = \sum_{x} P(x)f(x)
+\\]
+
+`(2)`について、  
+
+\\[
+    I(Q(x)) - I(P(x)) = 
+    \Bigl(
+        - \mathrm{log} \bigl(Q(x) \bigr) 
+    \Bigr) -
+    \Bigl( 
+        - \mathrm{log} \bigl(P(x) \bigr) 
+    \Bigr) = \mathrm{log} \dfrac{P(x)}{Q(x)}
+\\]
+
+よって  
+
+\\[
+    D_{KL}(P||Q) = \sum_{x} P(x) 
+    \biggl( 
+        \Bigl(
+            - \mathrm{log} \bigl( Q(x) \bigr) 
+        \Bigr) - 
+        \Bigl( 
+            - \mathrm{log} \bigl( P(x) \bigr) 
+        \Bigr) 
+    \biggr) 
+    = \sum_{x} P(x) \mathrm{log} \dfrac{P(x)}{Q(x)}  
+\\]
+
+#### 交差エントロピー
+
+KLダイバージェンスの一部を取り出したもの  
+$Q$(想定していた信号)についての自己情報量を$P$(現実の信号)の分布で平均  
+エントロピーは$H$で表す
+
+\\[
+    D_{KL}(P||Q) = \sum_{x} 
+    \overbrace{ P(x) }^{(1), (2)} 
+    \biggl( 
+        \Bigl(
+            \overbrace{
+                - \mathrm{log} \bigl( Q(x) \bigr) 
+            }^{(1)}
+        \Bigr) - 
+        \Bigl( 
+            \overbrace{
+                - \mathrm{log} \bigl( P(x) \bigr) 
+            }^{(2)}
+        \Bigr) 
+    \biggr) 
+\\]
+
+\\[
+    \overbrace{
+        H(P, Q)
+     }^{(1)より} = 
+     \overbrace{
+         H(P)
+      }^{(2)より} 
+      + D_{KL}(P||Q)
+\\]
+
+\\[
+    H(P, Q) 
+    = - \mathbb{E}_{x \sim P} \mathrm{log} Q(x) 
+\\]
+
+\\[
+    = \sum_{x} P(x) \mathrm{log} Q(x)
+\\]
