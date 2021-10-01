@@ -76,3 +76,64 @@ $\boldsymbol{w} = (w_1, w_2, \cdots, w_m)^T \in \mathbb{R}^m$
 線形結合  
 $\hat{y} = \boldsymbol{w} ^T \boldsymbol{x} + w_0 = \sum ^m _{j=1} w_j x_j + w_0$
 
++ 線形結合
+    + 入力ベクトルと未知のパラメータの各要素を掛け算して足し合わせたもの
+    + 出力は1次元
+
+<br>
+
++ モデルのパラメータ
+    + 特徴量が予測値に対してどのように影響を与えるかを決定する重みの集合
+        + 重みが大きいほど影響大
+        + y軸との交点を表す
+
+説明変数が1次元の場合  
+
+モデル数式
+
+$\overbrace{y}^{目的変数} = \overbrace{w_0}^{切片} + \overbrace{w_1}^{回帰係数} \overbrace{x_1}^{説明変数} + \overbrace{ \epsilon }^{誤差}$  
+$x, y$：既知 / 入力データ  
+$w$：未知 / 学習で決める  
+
+目的変数の予測に必要な説明変数をモデルに含めていない場合、  
+その説明変数の影響は誤差に乗っかってくる  
+
+連立方程式  
+
+$y_1 = w_0 + w_1 x_1 + \epsilon_1$  
+$y_2 = w_0 + w_1 x_2 + \epsilon_2$  
+$\vdots$  
+$y_n = w_0 + w_1 x_n + \epsilon_n$  
+
+行列表現  
+
+$\boldsymbol{y} = X \boldsymbol{w} + \epsilon$
+
+\\[
+    \overbrace{
+        \begin{pmatrix}
+            y_1 \\\\  
+            y_2 \\\\  
+            \vdots \\\\  
+            y_n
+        \end{pmatrix}
+    }^{n × 1}
+    = 
+    \overbrace{
+        \begin{pmatrix}
+            1 & x_1 \\\\  
+            1 & x_2 \\\\  
+            \vdots & \vdots \\\\  
+            1 & x_n
+        \end{pmatrix}
+    }^{n × 2}
+    \overbrace{
+        \begin{pmatrix}
+            w_0 \\\\  
+            w_1
+        \end{pmatrix}
+    }^{2 × 1}
+\\]  
+
+プログラムを書くときは、行列のshapeに注意  
+
