@@ -55,7 +55,7 @@ n次元空間における超平面の方程式
 + 回帰で扱うデータ
     + 入力 (各要素を説明変数または特徴量と呼ぶ)
         + m次元のベクトル
-        + $ \bm{x} = (x_1, x_2, \cdots, x_m)^T \in \mathbb{R}^m$ (←太字はベクトル、細字は要素、$\mathbb{R}$は実数全体)
+        + $ \boldsymbol{x} = (x_1, x_2, \cdots, x_m)^T \in \mathbb{R}^m$ (←太字はベクトル、細字は要素、$\mathbb{R}$は実数全体)
     + 出力 (目的変数)
         + スカラー値
         + $y \in \mathbb{R}^1$
@@ -68,11 +68,11 @@ cf：密度比推定
         + 予測値にはハットをつける
 
 教師データ  
-$\{(x_i, y_i); i = 1, \cdots, n\}$  
+$\\{(x_i, y_i); i = 1, \cdots, n\\}$  
 
 パラメータ  
-$\bm{w} = (w_1, w_2, \cdots, w_m)^T \in \mathbb{R}^m$  
+$\boldsymbol{w} = (w_1, w_2, \cdots, w_m)^T \in \mathbb{R}^m$  
 
 線形結合  
-$\hat{y} = \bm{w} ^T \bm{x} + w_0 = \sum ^m _{j=1} w_j x_j + w_0$
+$\hat{y} = \boldsymbol{w} ^T \boldsymbol{x} + w_0 = \sum ^m _{j=1} w_j x_j + w_0$
 
