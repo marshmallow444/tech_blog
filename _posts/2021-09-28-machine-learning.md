@@ -137,3 +137,60 @@ $\boldsymbol{y} = X \boldsymbol{w} + \epsilon$
 
 プログラムを書くときは、行列のshapeに注意  
 
+説明変数が多次元の場合(m > 1)  
+
+モデル数式
+
+$\overbrace{y}^{目的変数} = \overbrace{w_0}^{切片} + \overbrace{w_1}^{回帰係数} \overbrace{x_1}^{説明変数} +  \overbrace{w_2}^{回帰係数} \overbrace{x_2}^{説明変数} + \overbrace{ \epsilon }^{誤差}$  
+$x, y$：既知 / 入力データ  
+$w$：未知 / 学習で決める  
+
+データは回帰局面に誤差が加わり観測されていると仮定  
+
+連立方程式  
+
+$y_1 = w_0 + w_1 x_{11} + w_2 x_{12} + \cdots + w_m x_{1m} + \epsilon_1$  
+$y_2 = w_0 + w_1 x_{21} + w_2 x_{22} + \cdots + w_m x_{2m} + \epsilon_2$  
+$\vdots$  
+$y_n = w_0 + w_1 x_{n1}+ w_2 x_{n2} + \cdots + w_m x_{nm} + \epsilon_n$  
+
+$ \Longrightarrow \boldsymbol{y} = \underbrace{X}_{計画行列} \boldsymbol{w}$
+
+未知パラメータ$w$は最小に情報により推定  
+
+行列表現  
+
+$\boldsymbol{y} = X \boldsymbol{w} + \epsilon$
+
+\\[
+    \overbrace{
+        \begin{pmatrix}
+            y_1 \\\\  
+            y_2 \\\\  
+            \vdots \\\\  
+            y_n
+        \end{pmatrix}
+    }^{n × 1}
+    = 
+    \overbrace{
+        \begin{pmatrix}
+            1 & x_{11} & \cdots & x_{1m} \\\\  
+            1 & x_{21} & \cdots & x_{2m} \\\\  
+            \vdots & \vdots & \vdots & \vdots \\\\  
+            1 & x_{n1} & \cdots & x_{nm}
+        \end{pmatrix}
+    }^{n × (m + 1)}
+    \overbrace{
+        \begin{pmatrix}
+            w_0 \\\\  
+            w_1 \\\\  
+            \vdots \\\\  
+            w_m
+        \end{pmatrix}
+    }^{(m + 1) × 1}
+\\]  
+
+行列を見てこんがらがったら、いったん連立方程式に変換して考えてみるとよい  
+データ数(n) > m+1でないと解けない  
+
+---
