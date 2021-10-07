@@ -195,5 +195,40 @@ $\boldsymbol{y} = X \boldsymbol{w} + \epsilon$
 備考：
 + 行列を見てこんがらがったら、いったん連立方程式に変換して考えてみるとよい  
 + データ数$n > m+1$でないと解けない  
++ 参考文献 「[機械学習のエッセンス](https://www.amazon.co.jp/dp/B07GYS3RG7/ref=dp-kindle-redirect?_encoding=UTF8&btkr=1)」
 
 ---
+
+### 汎化
+
+データを学習用と検証用に分割  
+→モデルの汎化性能を測定するため  
+
+### 最小二乗法
+
+線形回帰モデルのパラメータはこの方法で推定  
+
++ 平均二乗誤差(残差平方和)
+    + データとモデル出力の二乗誤差の和
++ 最小二乗法
+    + 学習データの**平均二乗誤差**を最小とするパラメータを探索
+        + その勾配が0となる点を求めればよい
+
+$ \sum _i \overbrace{ (\hat{y}_i - y_i)^2 }^{二乗誤差} = \sum _i \epsilon^2_i $  
+
+※二乗損失は一般に外れ値に弱い  
+→Huber損失、Tukey損失  
+
+参考文献：  
++ イラストで学ぶ機械学習
+
+$\mathrm{MSE_{train}} = J(W) = \frac{1}{n_{train}} \sum_{i=1}^{n_{train}} (\overbrace{ \hat y_i^{(train)} }^{W^Tx_i^{(train)}} - y_i^{(train)})^2$  
+
++ $\hat{ \boldsymbol{w} } = \mathrm{arg} \space \mathrm{min} \space \mathrm{MSE} _{train}$  
+$ \qquad \boldsymbol{w} \in \mathbb{R}^{m+1}$
+    + MSEを最小にするような$w$ (m次元)
+    + `arg`：パラメータを指す
+    + `min`：最小値
++ $\frac{\partial}{\partial \boldsymbol{w}} \mathrm{MSE}_{train} = 0$
+    + MSEをwに関して微分したものが0となるwの点を求める
+
