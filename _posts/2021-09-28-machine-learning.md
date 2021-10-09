@@ -232,3 +232,92 @@ $ \qquad \boldsymbol{w} \in \mathbb{R}^{m+1}$
 + $\frac{\partial}{\partial \boldsymbol{w}} \mathrm{MSE}_{train} = 0$
     + MSEをwに関して微分したものが0となるwの点を求める
 
+<br>
+
+【$\sum$を行列に変換】
+
+$ \hat{ \boldsymbol{w} } = \mathrm{arg} \space \mathrm{min} \space \mathrm{MSE} _{train}$  
+
+$\frac{\partial}{\partial \boldsymbol{w}} \mathrm{MSE} _{train} = 0$  
+
+$\Longrightarrow \frac{\partial}{\partial \boldsymbol{w}} \\{\frac{1}{n_{train}} \sum_{i=1}^{n_{train}} ( \hat y_i^{(train)} - y_i^{(train)} )^2 \\} = 0$  
+
+$\Longrightarrow \frac{\partial}{\partial \boldsymbol{w}} \\{\frac{1}{n_{train}} \sum_{i=1}^{n_{train}} ( \boldsymbol{x}_i^T \cdot \boldsymbol{w} - y_i^{(train)} )^2 \\} = 0$  
+
+$\Longrightarrow \frac{\partial}{\partial \boldsymbol{w}} \\{\frac{1}{n_{train}} (\boldsymbol{X} \boldsymbol{w} - \boldsymbol{y})^T (\boldsymbol{X} \boldsymbol{w} - \boldsymbol{y}) \\} = 0$  
+
+\\[
+    \boldsymbol{X} \boldsymbol{w} - \boldsymbol{y} \\\\  
+    \longrightarrow
+    \overbrace{
+        \begin{pmatrix}
+            1 & x_{11} & \cdots & x_{1m} \\\\  
+            1 & x_{21} & \cdots & x_{2m} \\\\  
+            \vdots & \vdots & \vdots & \vdots \\\\  
+            1 & x_{n1} & \cdots & x_{nm}
+        \end{pmatrix}
+    }^{X}
+    \overbrace{
+        \begin{pmatrix}
+            w_0 \\\\  
+            w_1 \\\\  
+            \vdots \\\\  
+            w_m
+        \end{pmatrix}
+    }^{w} -
+    \overbrace{
+        \begin{pmatrix}
+            y_1 \\\\  
+            y_2 \\\\  
+            \vdots \\\\  
+            y_n
+        \end{pmatrix}
+    }^{y}
+\\]  
+
+$\Longrightarrow \frac{1}{n_{train}} \cdot \frac{\partial}{\partial \boldsymbol{w}} \\{ (\boldsymbol{w}^T \boldsymbol{X}^T  - \boldsymbol{y}^T) (\boldsymbol{X} \boldsymbol{w} - \boldsymbol{y}) \\} = 0$  
+
+$\Longrightarrow \frac{1}{n_{train}} \cdot \frac{\partial}{\partial \boldsymbol{w}} \\{ \boldsymbol{w}^T \boldsymbol{X}^T \boldsymbol{X} \boldsymbol{w} - \overbrace{ \boldsymbol{w}^T \boldsymbol{X}^T \boldsymbol{y} - \boldsymbol{y}^T \boldsymbol{X} \boldsymbol{w} }^{等しい} - \boldsymbol{y}^T\boldsymbol{y} \\} = 0$  
+
+$\Longrightarrow \frac{1}{n_{train}} \cdot \frac{\partial}{\partial \boldsymbol{w}} \\{ \underbrace{ \boldsymbol{w}^T \boldsymbol{X}^T \boldsymbol{X} \boldsymbol{w} }_{wの2次項} - \overbrace{ 2 \boldsymbol{w}^T \boldsymbol{X}^T \boldsymbol{y} }^{wの1次項} - \boldsymbol{y}^T\boldsymbol{y} \\} = 0$  
+
+$\Longrightarrow \frac{1}{n_{train}} \\{ 2 \boldsymbol{X}^T \boldsymbol{X} \boldsymbol{w} - 2 \boldsymbol{X}^T \boldsymbol{y} \\} = 0$  
+
+\\[
+    \begin{split}
+        (∵) \frac{ \partial( \boldsymbol{w} ^T \boldsymbol{w} ) }{ \partial \boldsymbol{w} }  &= \boldsymbol{x} \\\\  
+        \frac{\partial (\boldsymbol{w} ^T A \boldsymbol{w})}{\partial \boldsymbol{w}} &= (A + A^T) \cdot \boldsymbol{x} \\\\  
+        &= 2A \boldsymbol{x} (A:対称行列)
+    \end{split}
+\\]
+
+$\Longrightarrow 2 \boldsymbol{X}^T \boldsymbol{X} \boldsymbol{w} - 2 \boldsymbol{X}^T \boldsymbol{y} = 0$  
+
+$\Longrightarrow 2 \boldsymbol{X}^T \boldsymbol{X} \boldsymbol{w} = 2 \boldsymbol{X}^T \boldsymbol{y}$  
+
+$\Longrightarrow \overbrace{ (\boldsymbol{X}^T \boldsymbol{X})^{-1} (\boldsymbol{X}^T \boldsymbol{X}) }^{A^{-1}A = I (単位行列)} \cdot \boldsymbol{w} = (\boldsymbol{X}^T \boldsymbol{X})^{-1} \boldsymbol{X}^T \cdot \boldsymbol{y}$  
+
+$\Longrightarrow \boldsymbol{w} = (\boldsymbol{X}^T \boldsymbol{X})^{-1} \cdot \boldsymbol{X}^T \boldsymbol{y}$
+
+参考書籍：
++ Matrix Cook Book
+
+<br>
+
+【回帰係数】  
+
+$\hat{ \boldsymbol{w} } = (X^{(train)T} X^{(train)})^{-1} X^{(train)T} \boldsymbol{y} ^{(train)}$  
+
+【予測値】  
+
+$\hat{ \boldsymbol{y} } = X (X^{(train)T} X^{(train)})^{-1} X^{(train)T} \boldsymbol{y} ^{(train)}$  
+
+<br>
+
+$\hat{ \boldsymbol{w} } = \underbrace{(X^{T} X)^{-1}} X^{T} \boldsymbol{y}$  
+
+$\qquad$ ↑逆行列は常に存在するわけではない (一般化逆行列)
+
+$\hat{ \boldsymbol{y} } = \overbrace{ X_* }^{予測したい新たな入力点(n_* 個)} \cdot \hat{ \boldsymbol{w} } = \overbrace{ X_* }^{n_* \times (m+1)} \cdot \overbrace{ (X^{T} X)^{-1} X^{T} \boldsymbol{y} }^{(m+1) \times 1}$  
+
+$\qquad ↑ X_* \cdot \hat{ \boldsymbol{w} } =  X_* \cdot (X^{T} X)^{-1} X^{T}$ の部分を**射影行列**という
