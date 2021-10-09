@@ -197,8 +197,6 @@ $\boldsymbol{y} = X \boldsymbol{w} + \epsilon$
 + データ数$n > m+1$でないと解けない  
 + 参考文献 「[機械学習のエッセンス](https://www.amazon.co.jp/dp/B07GYS3RG7/ref=dp-kindle-redirect?_encoding=UTF8&btkr=1)」
 
----
-
 ### 汎化
 
 データを学習用と検証用に分割  
