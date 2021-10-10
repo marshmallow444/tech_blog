@@ -345,4 +345,56 @@ $\qquad ↑ X_* \cdot \hat{ \boldsymbol{w} } =  X_* \cdot (X^{T} X)^{-1} X^{T}$ 
 
 ドメイン知識に基づいて、予測結果が正しいかを確認する  
 
+<br>
+
 ---  
+
+## 非線形回帰モデル  
+
+単回帰 / 重回帰  
+
+$y = w_0 + w_1 \cdot x \quad / \quad y = w_0 + w_1 \cdot x_1 + w_2 \cdot x_2 + \cdots + w_m \cdot x_m$  
+
+<br>
+
+非線形な回帰を考えたい：  
+e.g.  
++ $y = w_0 + w_1 \cdot x + w_2 \cdot \overbrace{ x^2 }^{ \phi_2(x) } + w_3 \cdot \overbrace{ x^3 }^{ \phi_3(x) }$
++ $y = w_0 + w_1 \cdot \overbrace{ \sin x } + w_2 \cdot \overbrace{ \cos x } + w_3 \cdot \overbrace{ \log x }$
+
+$\Longrightarrow$Idea: $x$の代わりに、$\underbrace{ \phi(x) }_{xの関数(任意)}$を用いる  
+$\qquad x$が$\phi(x)$に代わるだけ！  
+
+※$x$から$\phi(x)$に代えても、$w$については線形のまま  
+$f(x) = ax^2+bx+c$ ・・・$x$についての2次関数  
+$f(a) = ax^2+bx+c$ ・・・$a$についての1次関数  
+
+予測モデル：$\hat y = w_0 + w_1 \cdot \phi_1(x) + w_2 \cdot \phi_w(x) + \cdots + w_m \cdot \phi_m(x)$  
+$\Longrightarrow$これは重み$w$について線形 (linear-in-parameter)  
+
++ 基底展開法
+    + 回帰係数として、基底関数とパラメータベクトルの線形結合を使用
+        + 基底関数：既知の非線形関数
+    + 未知パラメータは最小2乗法や最尤法により推定
+        + (線形回帰モデルと同様)
+
+$\qquad \qquad y_ = w_0 + \sum _{j=1}^m w_j \overbrace{ \phi_j(x_i) }^{基底関数} + \epsilon_i$  
+
++ よく使われる基底関数
+    + 多項式関数
+        + $\phi_j = x^j$
+    + ガウス型基底関数
+        + $\phi_j(x) = \exp{ \frac{(x - \mu_j)^2}{2h_j} }$
+    + スプライン関数 / Bスプライン関数
+
+☆基底関数 $\phi(x)$ に多項式関数$\phi_j = x^j$ を考える  
+
+\\[
+    \begin{split}
+        \hat y_i &= w_0 + w_1 \cdot \overbrace{ \phi_1(x_i) }^{x_i^1} + w_2 \cdot \overbrace{ \phi_2(x_i) }^{x_i^2} + \cdots + w_9 \cdots \overbrace{ \phi_9(x_i) }^{x_i^9} \\\\  
+        &= \overbrace{ w_0 } + \overbrace{ w_1 } \cdot x_i + \overbrace{ w_2 } \cdot x_i^2 + \cdots + \overbrace{ w_9 } \cdot x_i^9 \\\\  
+        &求めるべきwについては線形であることに注意 \\\\
+    \end{split}
+\\]
+
+  
