@@ -218,7 +218,7 @@ $ \sum _i \overbrace{ (\hat{y}_i - y_i)^2 }^{二乗誤差} = \sum _i \epsilon^2_
 →Huber損失、Tukey損失  
 
 参考文献：  
-+ イラストで学ぶ機械学習
++ [イラストで学ぶ機械学習](https://www.amazon.co.jp/イラストで学ぶ-機械学習-最小二乗法による識別モデル学習を中心に-KS情報科学専門書-杉山/dp/4061538217)
 
 $\mathrm{MSE_{train}} = J(W) = \frac{1}{n_{train}} \sum_{i=1}^{n_{train}} (\overbrace{ \hat y_i^{(train)} }^{W^Tx_i^{(train)}} - y_i^{(train)})^2$  
 
@@ -298,7 +298,7 @@ $\Longrightarrow \overbrace{ (\boldsymbol{X}^T \boldsymbol{X})^{-1} (\boldsymbol
 $\Longrightarrow \boldsymbol{w} = (\boldsymbol{X}^T \boldsymbol{X})^{-1} \cdot \boldsymbol{X}^T \boldsymbol{y}$
 
 参考書籍：
-+ Matrix Cook Book
++ [Matrix Cook Book](https://www.opst.co.jp/openinnovation/report/blog/blog-report210305_01)
 
 <br>
 
@@ -358,16 +358,16 @@ $y = w_0 + w_1 \cdot x \quad / \quad y = w_0 + w_1 \cdot x_1 + w_2 \cdot x_2 + \
 <br>
 
 非線形な回帰を考えたい：  
-e.g.  
-+ $y = w_0 + w_1 \cdot x + w_2 \cdot \overbrace{ x^2 }^{ \phi_2(x) } + w_3 \cdot \overbrace{ x^3 }^{ \phi_3(x) }$
-+ $y = w_0 + w_1 \cdot \overbrace{ \sin x } + w_2 \cdot \overbrace{ \cos x } + w_3 \cdot \overbrace{ \log x }$
++ e.g.  
+    + $y = w_0 + w_1 \cdot x + w_2 \cdot \overbrace{ x^2 }^{ \phi_2(x) } + w_3 \cdot \overbrace{ x^3 }^{ \phi_3(x) }$
+    + $y = w_0 + w_1 \cdot \overbrace{ \sin x } + w_2 \cdot \overbrace{ \cos x } + w_3 \cdot \overbrace{ \log x }$
 
 $\Longrightarrow$Idea: $x$の代わりに、$\underbrace{ \phi(x) }_{xの関数(任意)}$を用いる  
 $\qquad x$が$\phi(x)$に代わるだけ！  
 
-※$x$から$\phi(x)$に代えても、$w$については線形のまま  
-$f(x) = ax^2+bx+c$ ・・・$x$についての2次関数  
-$f(a) = ax^2+bx+c$ ・・・$a$についての1次関数  
+※$x$から$\phi(x)$に代えても、**$w$については線形のまま**  
++ $f(x) = ax^2+bx+c$ ・・・$x$についての2次関数  
++ $f(a) = ax^2+bx+c$ ・・・$a$についての1次関数  
 
 予測モデル：$\hat y = w_0 + w_1 \cdot \phi_1(x) + w_2 \cdot \phi_w(x) + \cdots + w_m \cdot \phi_m(x)$  
 $\Longrightarrow$これは重み$w$について線形 (linear-in-parameter)  
@@ -392,7 +392,7 @@ $\qquad \qquad y_ = w_0 + \sum _{j=1}^m w_j \overbrace{ \phi_j(x_i) }^{基底関
 \\[
     \begin{split}
         \hat y_i &= w_0 + w_1 \cdot \overbrace{ \phi_1(x_i) }^{x_i^1} + w_2 \cdot \overbrace{ \phi_2(x_i) }^{x_i^2} + \cdots + w_9 \cdots \overbrace{ \phi_9(x_i) }^{x_i^9} \\\\  
-        &= \overbrace{ w_0 } + \overbrace{ w_1 } \cdot x_i + \overbrace{ w_2 } \cdot x_i^2 + \cdots + \overbrace{ w_9 } \cdot x_i^9 \\\\  
+        &= \underbrace{ w_0 } + \underbrace{ w_1 } \cdot x_i + \underbrace{ w_2 } \cdot x_i^2 + \cdots + \underbrace{ w_9 } \cdot x_i^9 \\\\  
         &求めるべきwについては線形であることに注意 \\\\
     \end{split}
 \\]
@@ -405,6 +405,8 @@ $\phi_j(x) = \exp \\{ - \frac{(x-\mu_j)^2}{2h_j} \\} (= \exp \\{ - \frac{(x - \m
 
 $\phi_j(\boldsymbol{x}) = \exp \\{ \frac{(\boldsymbol{x} - \boldsymbol{\mu}_j)^T(\boldsymbol{x} - \boldsymbol{\mu}_j)}{2h_j} \\}$
 
+<br>
+
 + 説明変数
     + $\boldsymbol{x_i} = ( x_{i1}, x_{i2}, \cdots, x_{im} ) \in \mathbb{R}^m$ (m:説明変数の数)
 + 非線形関数ベクトル
@@ -416,7 +418,7 @@ $\phi_j(\boldsymbol{x}) = \exp \\{ \frac{(\boldsymbol{x} - \boldsymbol{\mu}_j)^T
 
 $\Longrightarrow$基底展開法も線形回帰と同じ枠組みで推定可能
 
-復習：$\overbrace{y}^{n \times 1} = \overbrace{X}^{n \times (m+1)} \overbrace{w}^{(m+1) \times 1} \Longrightarrow $ Now: $\overbrace{y}^{n \times 1} = \overbrace{\Phi}^{n \times (m+1)} \cdot \overbrace{w}^{(m+1) \times 1}$  
+復習: $\overbrace{y}^{n \times 1} = \overbrace{X}^{n \times (m+1)} \overbrace{w}^{(m+1) \times 1} \Longrightarrow $ Now: $\overbrace{y}^{n \times 1} = \overbrace{\Phi}^{n \times (m+1)} \cdot \overbrace{w}^{(m+1) \times 1}$  
 
 →結局、MSEを最小化する$w$は先と同様に、  
 
@@ -425,6 +427,8 @@ $\rightarrow \hat w = (\Phi^T \Phi)^{-1} \Phi^T y$
 
 ∴$\hat y = \Phi_* \cdot \hat w = \Phi_* \cdot (\Phi^T \Phi)^{-1} \Phi^T y$  
 
+<br>
+
 ### 未学習(underfitting)と過学習(overfitting)  
 
 + **未学習**：学習データに対し、十分小さな誤差が得られない
@@ -432,25 +436,27 @@ $\rightarrow \hat w = (\Phi^T \Phi)^{-1} \Phi^T y$
         + 表現力の高いモデルを利用
 + **過学習**：小さな誤差は得られたが、テスト集合誤差との差が大きい
     + 対策：
-        + 学習データの数を増やす
-        + **不要な基底関数(変数)を削除**して表現力を抑止
+        1. 学習データの数を増やす
+        1. **不要な基底関数(変数)を削除**して表現力を抑止
             + 特徴量選択
             + ドメイン知識に基づいて削除するものを判断
             + AICによりモデルを選択
-        + **正規化法を利用**して表現力を抑止
-
-参考：
-+ [オッカムの剃刀](https://ja.wikipedia.org/wiki/オッカムの剃刀)
-+ 変数選択問題：変数の組み合わせによりモデルの複雑さが変わる(線形回帰モデル)
+        1. **正規化法を利用**して表現力を抑止
 
 <br>
 
 + 不要な基底関数を削除
     + **モデルの複雑さ**：基底関数の数、位置やバンド幅により変化
-    + 適切な基底関数を用意(CVなどで選択)
+    + 適切な基底関数を用意(CV(cross validation)などで選択)
         + 解きたい問題に対して基底関数が多いと過学習の問題が発生
-+ 正則化法(罰則化法)
-    + 「モデルの複雑さに伴って、その値(w)が大きくなる **正則化項(罰則項)** を課した関数」を最小化
+
+参考：
++ [オッカムの剃刀](https://ja.wikipedia.org/wiki/オッカムの剃刀)
++ 変数選択問題：変数の組み合わせによりモデルの複雑さが変わる(線形回帰モデル)
+
+#### 正則化法(罰則化法)
+
++ 「モデルの複雑さに伴って、その値(w)が大きくなる **正則化項(罰則項)** を課した関数」を最小化
     + 形状によりいくつもの種類がある
         + それぞれ推定量の性質が異なる
     + 正則化(平滑化)パラメータ
@@ -458,8 +464,6 @@ $\rightarrow \hat w = (\Phi^T \Phi)^{-1} \Phi^T y$
         $S \gamma = (y - \overbrace{\Phi}^{n \times k}w)^T (y - \Phi w) + \overbrace{ \gamma R(w) }^{モデルの複雑化に伴う罰則} \quad \gamma (> 0)$
             + $\gamma$は重み(ハイパーパラメータ)
             + 基底関数の数(k)が増加→パラメータ増加、残差は減少。モデルは複雑化
-
-正則化法
 
 予測：$\hat y = X_* \cdot \overbrace{ (X^T X)^{-1} X^T y }^{\hat w}$
 
@@ -479,14 +483,12 @@ MSEが小さくなるよう$w$を考えるが、$w$→大 で 罰則→大
     + 小さく→制約面が大きく
     + 大きく→制約面が小さく
 
-(不等式条件のついた最適化法)
-
 解きたいのは  
-min MSE s.t. $\overbrace{R(w) \leq r}^{条件}$  
+min MSE s.t. $\overbrace{R(w) \leq r}^{条件} \quad$ (不等式条件のついた最適化法)  
 $\Downarrow$  
 [KKT条件](https://ja.wikipedia.org/wiki/カルーシュ・クーン・タッカー条件)より、  
 min MSE + $\overbrace{\lambda \cdot R(w)}^{これを付けると不等式条件を回避}$
 
-(メモ：以下のサイトがわかりやすかった)  
-[JDLA_E資格の機械学習「L1ノルム、L2ノルム」](https://qiita.com/TakoTree/items/bf0b456030b114cade6d)
+(メモ：[JDLA_E資格の機械学習「L1ノルム、L2ノルム」](https://qiita.com/TakoTree/items/bf0b456030b114cade6d)がわかりやすかった)  
+
 
