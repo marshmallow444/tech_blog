@@ -453,6 +453,7 @@ $\rightarrow \hat w = (\Phi^T \Phi)^{-1} \Phi^T y$
 参考：
 + [オッカムの剃刀](https://ja.wikipedia.org/wiki/オッカムの剃刀)
 + 変数選択問題：変数の組み合わせによりモデルの複雑さが変わる(線形回帰モデル)
++ [Double Decent](https://www.acceluniverse.com/blog/developers/2020/01/deep-double-descent-where-bigger-models-and-more-data-hurt.html) (線形回帰では基本的に発生しない))
 
 #### 正則化法(罰則化法)
 
@@ -491,4 +492,120 @@ min MSE + $\overbrace{\lambda \cdot R(w)}^{これを付けると不等式条件�
 
 (メモ：[JDLA_E資格の機械学習「L1ノルム、L2ノルム」](https://qiita.com/TakoTree/items/bf0b456030b114cade6d)がわかりやすかった)  
 
+<br>
+
+### データの分割とモデルの汎化性能測定
+
++ **ホールドアウト法**
+    + 有限のデータを学習用とテスト用に分割
+    →<u>予測精度</u>や<u>誤り率</u>を推定するために使用
+        + 学習用を増やす→学習精度↑、性能評価↓
+        + テスト用を増やす→学習精度↓
+        + **手元にデータが大量にある場合以外は、良い性能評価を与えない**
+    + 基底展開法に基づく非線形モデルでは、ホールドアウト値を小さくするモデルで以下を決定する
+        + 基底関数についての値
+            + 数
+            + 位置
+            + バンド幅
+        + チューニングパラメータ
+    + 学習用、テスト用のデータは固定
+
++ **クロスバリデーション(交差検証)**
+    + データを学習用と評価用に分割
+        + データをいくつかに分割
+        + 検証用のデータを入れ替えながら、複数回検証を行いCV値を得る
+        + 一番小さいCV値を採用
+
+精度の計算方法：MSE  
+注意：検証には**検証用データ**を使用すること！  
+$\qquad$→学習用データで精度を出しては意味がない  
+
+【ハイパーパラメータの調整方法】  
+
++ **グリッドサーチ**
+    + 全てのパラメータの組み合わせで評価値を算出
+    + 最も良い評価値を持つチューニングパラメータを持つ組み合わせを、「良いモデルのパラメータ」として採用
+
+参考：ニューラルネットワークでの調整方法
++ [ベイズ最適化(Bayesian Optimization)](https://qiita.com/masasora/items/cc2f10cb79f8c0a6bbaa)　
+    + [ハイパーパラメータ自動最適化ツール「Optuna」](https://tech.preferred.jp/ja/blog/optuna-release/)
+
+---
+
+## ロジスティック回帰モデル  
+
++ 分類問題(クラス分類)
+    + ある入力からクラスに分類
++ 分類で扱うデータ
+    + 入力(各要素を**説明変数**または**特徴量**と呼ぶ)
+        + m次元のベクトル
+            + $\boldsymbol{x} = (x_1, x_2, \cdots, x_m)^T \in \mathbb{R}^m$
+    + 出力(目的変数)
+        + 0 or 1の値
+            + $y \in {0, 1}$
+    + タイタニックデータ、IRISデータなど
+    + 教師データ
+        + $\\{ (x_i, y_i); \space i = 1, \cdots, n \\}$
+
+(参考)  
+[Using Machine Learning to Predict Parking Difficulty](https://ai.googleblog.com/2017/02/using-machine-learning-to-predict.html)  
+→NNよりロジスティック回帰の方が精度が良かった例  
+
+【E資格によく出る！】  
+
+識別的アプローチ：  
+$p(C_k | x)$を直接モデル化  
+ロジスティック回帰はこれ  
+識別関数の構成もある(SVMなど)  
+
+生成的アプローチ：  
+$p(C_k)$と$p(x | C_k)$をモデル化  
+その後Bayesの定理を用いて$p(C_k | x)$を求める  
++ 外れ値の検出ができる  
++ 新たなデータを生成できる(GANとか)  
+
+\\[
+    \qquad p(C_k\|x) = \frac{p(C_k, x)}{p(x)} = \frac{p(x\|C_k) \cdot p(C_k)}{p(x)}
+\\]
+
+sigmoid関数：  
+
+\\[
+    \overbrace{x^T w}^{sigmoid関数で[0, 1]に} \in \mathbb{R} \leftarrow \rightarrow y \in \\{0, 1\\}\\\\  
+    a(z) := \frac{1}{1 + e^{-z}} = \frac{e^z}{1 + e^z}\\\\  
+    実数全体から[0, 1]へつぶす  
+\\]
+
+#### ロジスティック線形回帰モデル
+
++ 分類問題を解くための教師あり機械学習モデル
+    + 入力とm次元パラメータの**線形結合**をシグモイド関数へ入力
+        + $\hat y = \boldsymbol{w^T x} + w_0 =  \sum_{j=1}^{m} w_j x_j + w_0$
+    + 出力はy=1になる確率の値
+
++ パラメータが変わるとシグモイド関数の形が変わる
+    + aを増加→0付近での勾配が増加
+    + aを極めて大きくすると、単位ステップ関数に近づく
+    + バイアス変化は段差の位置
+
+\\[
+    \sigma(x) = \frac{1}{1 + \exp (-ax)}
+\\]
+
++ シグモイド関数の性質
+    + シグモイド関数の微分は、シグモイド関数自身で表現することが可能
+    + 尤度関数の微分の際にこの事実を利用すると計算が容易
+
+\\[
+    \begin{split}
+	    &a(z) = \frac{1}{1 + \exp (-z)} = \\{1 + \exp (-z)\\}^{-1}\\\\  
+        &\Longrightarrow \frac{\partial a(z)}{\partial z} = \overbrace{ -1 \cdot \\{ 1 + \exp (-x) \\}^{-2}}^{-1乗の微分} \times \overbrace{ \exp(-z) }^{\frac{\partial}{\partial z}\\{1 + \exp (-z)\\}} \times \overbrace{ (-1) }^{\frac{\partial}{\partial z}(-z)}\\\\  
+        \\\\  
+        & \qquad ※合成関数の微分をcheck!\\\\  
+        & \qquad \frac{\partial}{\partial x}f(g(x)) = f'(g(x)) \cdot g'(x)\\\\  
+        \\\\  
+        &\Longrightarrow \qquad \qquad = \overbrace{ \frac{1}{1 + \exp(-z)} }^{sigmoid関数 \sigma (z)} \times \frac{\exp (-z)}{1 + exp(-z)}\\\\  
+        &\Longrightarrow \qquad \qquad = a(z) \times (1 - a(z))
+    \end{split}
+\\]
 
