@@ -4,6 +4,14 @@ title: "Dockerを使ってKaggleの環境を構築する"
 tags: Kaggle
 ---
 
+10/12追記：  
+VSCodeを使いたい場合は「[ローカルでDocker+VSCodeを使ったKaggleの環境構築メモ](../../10/12/kaggle-env-on-docker-with-vscode.html)」の方法がおすすめ。  
+本記事の方法は、上記記事より手軽に試したい場合におすすめ。  
+
+---
+
+<br>
+
 「[爆速でKaggle環境を構築する](https://qiita.com/bam6o0/items/354faa9394755a984661)」の手順に従って、Docker初心者がmac OS上にKaggleのNotebookの実行環境を構築してみたメモ。  
 
 ## 環境構築手順
