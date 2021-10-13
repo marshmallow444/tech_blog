@@ -624,6 +624,145 @@ sigmoid関数：
         \\\\  
         &\Longrightarrow \qquad \qquad = \overbrace{ \frac{1}{1 + \exp(-z)} }^{sigmoid関数 \sigma (z)} \times \frac{\exp (-z)}{1 + exp(-z)}\\\\  
         &\Longrightarrow \qquad \qquad = a(z) \times (1 - a(z))
+    \end{split}　
+\\]
+
++ シグモイド関数の出力をY=1になる確率に対応させる
+    + データYは確率が基準値以上なら1、未満なら0と予測
+        + 基準値：0.5など、場合に応じて決める
+
+【求めたい値】  
+
+$ \overbrace{P(Y=1 \| x)}^{説明変数の実現値が与えられた際にY=1になる確率}  = \overbrace{\sigma}^{シグモイド関数} ( \overbrace{w_0 + w_1 x_1 + \cdots + w_m x_m}^{データのパラメータに対する線形結合} )$  
+
+【表記】  
+
+$p_i = \sigma (w_0 + w_1 x_{i1} + \cdots + w_m x_{im})$
+
+【数式】  
+
+$P(Y = 1\| \boldsymbol{x}) = \sigma (\overbrace{w_0}^{切片} + \overbrace{w_1}^{回帰係数} \underbrace{x_1}_{説明変数})$  
+$w$は未知。学習で決める  
+
+### 最尤推定  
+
++ 様々な確率分布
+    + 正規分布
+    + t分布
+    + ガンマ分布
+    + 一様分布
+    + ディリクレ分布
+    + :
+    + ロジスティック回帰モデルではベルヌーイ分布を利用
++ ベルヌーイ分布
+    + 数学において、確率pで1、確率1-pで0をとる、離散確率分布(例：コイントス)
+    + **「生成されるデータ」は分布のパラメータにより異なる** (この場合は確率p)
+
+【ベルヌーイ分布に従う確率変数Y】  
+
+$Y \sim Be(p)$  
+
+【Y=0とY=1になる確率をまとめて表現】  
+
+$P(y) = p^y(1 - p)^{1 - y}$  
+
+<br>
+
++ ベルヌーイ分布のパラメータの推定  
+    + データからそのデータを生成したであろう尤もらしい分布(パラメータを推定したい  
+        + 最尤推定
++ 同時確率
+    + あるデータが得られた時、それが同時に得られる確率
+    + それぞれの確率の掛け算(確率変数は独立と仮定)
++ 尤度関数
+    + データは固定、パラメータを変化させる
+    + 尤度関数を最大化するようなパラメータを選ぶ推定方法を**最尤推定**という
+
+【1回の試行でy=y_1になる確率】  
+
+$P(y) = p^y (1-p)^{1-y}$  
+
+【n回の試行でy1~ynが同時に起こる確率(p固定)】  
+
+$P(y_1, y_2, \cdots, y_n; p) = \prod_{i=1}^{n} \overbrace{p^{y_i}}^{p:既知}  (1 - \overbrace{p}^{既知})^{1 - y_i}$  
+
+【y1~ynのデータが得られた際の尤度関数】  
+
+$P( \overbrace{y_1, y_2, \cdots, y_n}^{既知} ; p) = \prod_{i=1}^{n} \overbrace{p^{y_i}}^{p:未知, y_i:既知}(1 - \overbrace{p}^{未知})^{1 - \overbrace{y_i}^{既知}}$  
+
+<br>
+
++ ロジスティック回帰モデルの最尤推定
+    + 確率pはシグモイド関数となるため、推定するパラメータは重みパラメータとなる
+    + $(x_1, y_1), (x_2, y_2), \cdots,  (x_3, y_3)$を生成するに至ったもっとmらしいパラメータを探す
+
+$P(Y = y_1 \| x_1) = p_1^{y_1}(1 - p_1)^{1 - y_1} = \sigma (\boldsymbol{w}^T \boldsymbol{x_1})^{y_1}(1 - \sigma ((\boldsymbol{w}^T \boldsymbol{x_1}))^{1-y_1}$  
+$P(Y = y_2 \| x_2) = p_2^{y_2}(1 - p_2)^{1 - y_2} = \sigma (\boldsymbol{w}^T \boldsymbol{x_2})^{y_2}(1 - \sigma ((\boldsymbol{w}^T \boldsymbol{x_2}))^{1-y_2}$  
+$\vdots$  
+$P(Y = y_n \| x_n) = p_n^{y_n}(1 - p_n)^{1 - y_n} = \sigma (\boldsymbol{w}^T \boldsymbol{x_n})^{y_n}(1 - \sigma ((\boldsymbol{w}^T \boldsymbol{x_n}))^{1-y_n}$  
+
+↑$w$は未知  
+
+【y1~ynのデータが得られた際の尤度関数】  
+
+尤度関数Lを最大とするパラメータを探索  
+
++ 確率変数が独立を仮定
+    + 確率の積に分解可能
++ 尤度関数はパラメータのみに依存する関数
+
+\\[
+    \begin{split}
+        P(y_1, y_2, \cdots, y_n \| w_0, w_1, \cdots, w_m) &= \prod_{i=1}^{n} p_i^{y_i} (1 - p_i)^{1 - y_i} \\\\  
+        & = \prod_{i=1}^{n} \sigma (\boldsymbol{w}^T \boldsymbol{x_i})^{y_i}(1 - \sigma ((\boldsymbol{w}^T \boldsymbol{x_i}))^{1-y_i} \\\\  
+        &= L( \boldsymbol{w} ) \\\\  
+        ↑x, yは既知、w, pは未知  
     \end{split}
 \\]
 
++ 尤度関数を最大とするパラメータを探す(推定)
+    + 対数をとると、
+        + 微分の計算が簡単
+            + 同時確率の積が和に変換可能
+            + 指数が積の演算に変換可能
+        + 桁落ちも防げる
+    + 対数尤度関数が最大になる点と尤度関数が最大になる点は同じ
+        + 対数関数は単調増加
+            + ある尤度の値がx1 < x2のとき、必ずlog(x1) < log(x2)となる
+    + 「尤度関数にマイナスをかけたものを最小化」→「最小2乗法の最小化」と合わせる
+
+\\[
+    \begin{split}
+        E(w_0, w_1, \cdots, w_m) &= - \log L(w_0, w_1, \cdots, w_m) \\\\  
+        &= \sum_{i=1}^{n} \\{ y_i \log p_i + (1 - y_i) \log (1 - p_i) \\}
+    \end{split}
+\\]
+
++ 勾配降下法 (Gradient decent)
+    + 参考：[機械学習にでてくる勾配降下法/勾配ベクトルなどの整理。ついでにPythonで試してみた。](https://qiita.com/masatomix/items/d4e5fb3b52fa4c92366f)
+    + $\eta$(イータ)：学習率 (ハイパーパラメータ)
+        + モデルのパラメータの収束しやすさを調整する
++ なぜ必要か？
+    + [線形回帰モデル(最小2乗法)]：
+        + MSEのパラメータに関する微分が0になる値を解析に求めることが可能
+    + [ロジスティック回帰モデル(最尤法)]：
+        + 対数尤度関数をパラメータで微分して0になる値を求める必要があるが、解析的にこの値を求めることは困難
+
+\\[
+    \boldsymbol{w}(k + 1) = \boldsymbol{w}^k - \eta \frac{\partial E( \boldsymbol{w} )}{\partial \boldsymbol{w}}
+\\]
+
+対数尤度関数を、係数とバイアスに関して微分  
+
+\\[
+    \begin{split}
+        Loss: E(w) &= - \log L(w) \cdots 負の対数尤度(negative \space log-likelihood) \\\\  
+        &= - \sum_{i = 1}^{n} \\{ \overbrace{ y_i \cdot \log P_i + (1-y_i) \log (1-p_i) }^{E_i} \\} \\\\  
+        & (p_i = \overbrace{\sigma (w^T x_i)}^{z} = \frac{1}{1 + \exp (w^T x_i)}) \\\\  
+        \space\\\\  
+        \Longrightarrow \frac{\partial E( \boldsymbol{w} )}{\partial \boldsymbol{w}} &= - \sum_{i=1}^{n} \frac{\partial E_i}{\partial p_i} \times \frac{\partial p_i}{\partial z_i} \times \frac{\partial z_i }{\partial \boldsymbol{w}} \qquad \qquad \cdots 微分のchain \space rule \\\\  
+        &= - \sum_{i=1}^{n} (\overbrace{\frac{y_i}{p_i} - \frac{1 - y_i}{1 - p_i}}^{\log の微分} ) \times \overbrace{p_i(1 - p_i)}^{sigmoidの微分}  \times \overbrace{x_i}^{w^T x_iの微分} →分母・分子でcancelできる \\\\  
+        &= - \sum_{i=1}^{n} \\{ y_i \cdot (1 - p_i) - (  - y_i) \cdot p_i \\} x_i \\\\  
+        &= - \sum_{i=1}^{n} \\{ y_i - p_i \\} x_i \\\\  
+    \end{split}
+\\]
