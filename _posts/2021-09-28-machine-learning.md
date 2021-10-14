@@ -766,3 +766,67 @@ $P(Y = y_n \| x_n) = p_n^{y_n}(1 - p_n)^{1 - y_n} = \sigma (\boldsymbol{w}^T \bo
         &= - \sum_{i=1}^{n} \\{ y_i - p_i \\} x_i \\\\  
     \end{split}
 \\]
+
++ パラメータが更新されなくなった場合
+    + = 勾配が0
+    + 少なくとも反復学習で探索した範囲では最適な解が求められた
+
+$$
+    \boldsymbol{w}^{(k + 1)} = \boldsymbol{w}^{(k)} + \eta \sum_{i=1}^{n}(y_i - p_i) \boldsymbol{x}_i
+$$
+
++ 勾配降下法では、パラメータを更新するのにN個すべてのデータに対する和を求める必要がある
+    + nが巨大となったときの問題
+        + データをオンメモリに載せる容量が足りない
+        + 計算時間が莫大
+    + 確率的勾配降下法を利用して解決
++ 確率的勾配降下法(SGD)
+    + データを一つずつランダムに選んでパラメータを更新
+    + 勾配降下法でパラメータを1回更新するのと同じ計算量で、パラメータをn回更新
+        + 効率よく最適解を探索可能
+
+$$
+    \boldsymbol{w} (k + 1) = \boldsymbol{w}^k + \eta (y_i - p_i) \boldsymbol{x}_i
+$$
+
+参考：  
+[京都大学集中講義 機械学習と深層学習の 数理と応用 (2)](http://ibis.t.u-tokyo.ac.jp/suzuki/lecture/2018/kyoto/Kyoto_02.pdf)  
+
+### ハンズオン  
+
+タイタニックの生存者予測
+
++ `LogisticRegression(C=1.0, penalty='l2')` 
+    + `C=1.0`: 正則化がかかっている  
+    + `penalty='l2'`: L2ノルム
++ 判断に困るような確率であれば、棄却オプションも使うのもよい
+
+---
+
+## 主成分分析  
+
++ 多変量データの持つ構造を、より少数個の指標に圧縮
+    + 変数の個数を減らすことに伴う、情報の損失はなるべく小さく
+    + 少数変数を利用した分析や可視化(2, 3次元の場合)が実装可能
+
+【学習データ】  
+
+$\boldsymbol{x}_i = (x_{i1}, x_{i2}, \cdots, x_{im}) \in \mathbb{R}^m$  
+
+【平均(ベクトル)】  
+
+$\bar x = \frac{1}{n} \sum_{i=1}^{n} x_i$  
+
+【データ行列】  
+
+$\bar X =  (\boldsymbol{x}_1 - \bar{ \boldsymbol{x} }, \cdots , \boldsymbol{x}_n - \bar{ \boldsymbol{x} })^T \in \mathbb{R}^{n \times m}$  
+
+【分散共分散行列】  
+
+$\sum = Var(\bar X) = \frac{1}{n} \bar X^T \bar X$  
+
+【線形変換あとのベクトル】  
+
+$ \boldsymbol{s}_j = (s_{1j}, \cdots, s_{nj})^T = \bar X \boldsymbol{a}_j \qquad \boldsymbol{a}_j \in \mathbb{R}^m$  
+
+(jは射影軸のインデックス)  
