@@ -796,6 +796,24 @@ $$
 
 #### タイタニックの乗客の生存予測
 
+【課題】  
+
+年齢が30歳で男の乗客は生き残れるか？  
+
+![titanic]({{site.baseurl}}/images/20211015.png)  
+
+結果：  
+
+生き残れない(生存率：約19%)  
+
+考察：  
+
++ 性別が生存率に大きく影響する
+    + 男性は生存率が低く、女性は高い
++ 年齢も生存率に影響はあるが、小さい
+    + 年齢が低い方が生存率が高い
+    ![titanic]({{site.baseurl}}/images/20211015_1.png)  
+
 メモ：  
 
 + モデルの設定をよく確認しておく必要がある
@@ -834,5 +852,60 @@ $\sum = Var(\bar X) = \frac{1}{n} \bar X^T \bar X$
 
 $ \boldsymbol{s_j} = (s_{1j}, \cdots, s_{nj})^T = \bar X \boldsymbol{a_j} \qquad \boldsymbol{a_j} \in \mathbb{R}^m$  
 
-
 (jは射影軸のインデックス)  
+
++ 係数ベクトルが変われば**線形変換後の値**が変化
+    + 情報の量を分散の大きさと捉える
+    + 線形変換後の変数の**分散が最大**となる射影軸を探索
+
+$$
+    \boldsymbol{s}_j = (s_{1j}, \cdots, s_{nj})^T = \bar X \boldsymbol{a}_j \qquad \boldsymbol{a}_j \in \mathbb{R}^m
+$$
+
+[線形変換後の分散]  
+
+$$
+    Var(s_j) = \frac{1}{n} (\bar X \boldsymbol{a}_j)^T (\bar X \boldsymbol{a}_j) = \frac{1}{n} \boldsymbol{a}_j^T \bar X \bar X \boldsymbol{a}_j = \boldsymbol{a}_j^T Var(\bar X) \boldsymbol{a}_j
+$$
+
++ 以下の制約付き最適化問題を解く
+    + ノルムが1となる制約を入れる (制約がないと解が無限にある)
+
+【目的関数】  
+
+$\arg \max \boldsymbol{a}_j^T Var (\bar X) \boldsymbol{a}_j$  
+
+【制約条件】  
+
+$\boldsymbol{a}_j^T \boldsymbol{a}_j = 1$  
+
++ 制約付き最適化問題の解き方
+    + ラグランジュ関数を最大にする係数ベクトルを探索 (微分して0になる点)
+
+【ラグランジュ関数】  
+
+$E(\boldsymbol{a}_j) = \overbrace{\boldsymbol{a}_j^T Var (\bar X) \boldsymbol{a}_j}^{目的関数}  - \overbrace{\lambda}^{ラグランジュ係数} (\overbrace{\boldsymbol{a}_j^T \boldsymbol{a}_j - 1}^{制約条件} )$
+
+## k近傍法  
+
++ 分類問題のための機械学習手法
+    + 最近傍のデータをk個とってきて、それらが最も多く所属するクラスに識別
+    + kを変えると結果も変わる
+    + kを大きくすると決定境界はなめらかになる
+
+## k-means
+
++ 教師なし学習
++ クラスタリング手法
++ 与えられたデータをk個のクラスタに分類
++ 中心の初期値が変わると結果の変わりうる
+    + 初期値が近いとうまくクラスタリングできないことも
+
+【アルゴリズム】  
+
+1. 各クラスタ中心の初期値を設定
+1. 各データ点に対して、各クラスタ中心との距離を計算し、最も距離が近いクラスタを割り当てる
+1. 各クラスタの平均ベクトル(中心)を計算する
+1. クラスタの再割当てと中心の更新を、収束するまで繰り返す
+
+参考：機械学習アルゴリズム辞典
