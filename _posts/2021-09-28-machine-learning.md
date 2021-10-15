@@ -794,12 +794,17 @@ $$
 
 ### ハンズオン  
 
-タイタニックの生存者予測
+#### タイタニックの乗客の生存予測
 
-+ `LogisticRegression(C=1.0, penalty='l2')` 
-    + `C=1.0`: 正則化がかかっている  
-    + `penalty='l2'`: L2ノルム
+メモ：  
+
++ モデルの設定をよく確認しておく必要がある
+    + 例：`LogisticRegression(C=1.0, penalty='l2')` 
+        + `C=1.0`: 正則化がかかっている  
+        + `penalty='l2'`: L2ノルム
 + 判断に困るような確率であれば、棄却オプションも使うのもよい
++ 複数の特徴量を組み合わせるなどして、新たな特徴量を作る方法もある
+    + 参考：[特徴量エンジニアリングについて6つ｜前処理と性能を高める手法](https://www.fenet.jp/infla/column/engineer/%E7%89%B9%E5%BE%B4%E9%87%8F%E3%82%A8%E3%83%B3%E3%82%B8%E3%83%8B%E3%82%A2%E3%83%AA%E3%83%B3%E3%82%B0%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A66%E3%81%A4%EF%BD%9C%E5%89%8D%E5%87%A6%E7%90%86%E3%81%A8%E6%80%A7/#%E7%89%B9%E5%BE%B4%E9%87%8F%E3%82%A8%E3%83%B3%E3%82%B8%E3%83%8B%E3%82%A2%E3%83%AA%E3%83%B3%E3%82%B0%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A63%EF%BC%9A%E6%96%B0%E3%81%97%E3%81%84%E5%A4%89%E6%95%B0%E3%82%92%E4%BD%9C%E3%82%8B%E7%89%B9%E5%BE%B4%E9%87%8F)
 
 ---
 
@@ -811,7 +816,7 @@ $$
 
 【学習データ】  
 
-$\boldsymbol{x}_i = (x_{i1}, x_{i2}, \cdots, x_{im}) \in \mathbb{R}^m$  
+$\boldsymbol{x_i} = (x_{i1}, x_{i2}, \cdots, x_{im}) \in \mathbb{R}^m$  
 
 【平均(ベクトル)】  
 
@@ -825,8 +830,9 @@ $\bar X =  (\boldsymbol{x}_1 - \bar{ \boldsymbol{x} }, \cdots , \boldsymbol{x}_n
 
 $\sum = Var(\bar X) = \frac{1}{n} \bar X^T \bar X$  
 
-【線形変換あとのベクトル】  
+【線形変換後のベクトル】  
 
-$ \boldsymbol{s}_j = (s_{1j}, \cdots, s_{nj})^T = \bar X \boldsymbol{a}_j \qquad \boldsymbol{a}_j \in \mathbb{R}^m$  
+$ \boldsymbol{s_j} = (s_{1j}, \cdots, s_{nj})^T = \bar X \boldsymbol{a_j} \qquad \boldsymbol{a_j} \in \mathbb{R}^m$  
+
 
 (jは射影軸のインデックス)  
