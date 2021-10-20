@@ -886,12 +886,46 @@ $\boldsymbol{a}_j^T \boldsymbol{a}_j = 1$
 
 $E(\boldsymbol{a}_j) = \overbrace{\boldsymbol{a}_j^T Var (\bar X) \boldsymbol{a}_j}^{目的関数}  - \overbrace{\lambda}^{ラグランジュ係数} (\overbrace{\boldsymbol{a}_j^T \boldsymbol{a}_j - 1}^{制約条件} )$
 
+### ハンズオン  
+
+#### 乳がん検査データ
+
+【課題】  
+
+32次元のデータを2次元上に次元圧縮した際に、うまく判別できるかを確認    
+
+![cancer]({{site.baseurl}}/images/20211020.png)  
+
+結果:  
+
++ 次元圧縮したときのscoreは高い精度を保っており、うまく判別できている
+    + ロジスティック回帰による予測に比べると、精度はわずかに下がった
+    + 混同行列を見ると、5つのデータがTPからFNに変わっている
+
+---
+
 ## k近傍法  
 
 + 分類問題のための機械学習手法
     + 最近傍のデータをk個とってきて、それらが最も多く所属するクラスに識別
     + kを変えると結果も変わる
     + kを大きくすると決定境界はなめらかになる
+
+### ハンズオン  
+
+【課題】人口データと分類結果をプロットしてください  
+
+結果：  
+
+![n_neighbors_3]({{site.baseurl}}/images/20211020_1.png)  
+![n_neighbors_5]({{site.baseurl}}/images/20211020_2.png)  
+![n_neighbors_15]({{site.baseurl}}/images/20211020_3.png)  
+
+`n_neighbors`の値を大きくするほど、境界がなめらかになる  
+
+<br>
+
+---
 
 ## k-means
 
@@ -909,3 +943,13 @@ $E(\boldsymbol{a}_j) = \overbrace{\boldsymbol{a}_j^T Var (\bar X) \boldsymbol{a}
 1. クラスタの再割当てと中心の更新を、収束するまで繰り返す
 
 参考：機械学習アルゴリズム辞典
+
+### ハンズオン  
+
+k-meansにてsyntheticデータと分類結果をプロット  
+
+![n_clusters:2]({{site.baseurl}}/images/20211020_4.png)  
+![n_clusters:3]({{site.baseurl}}/images/20211020_5.png)  
+![n_clusters:5]({{site.baseurl}}/images/20211020_6.png)  
+![n_clusters:6]({{site.baseurl}}/images/20211020_7.png)  
+
