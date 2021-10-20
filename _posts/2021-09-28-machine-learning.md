@@ -953,3 +953,141 @@ k-meansにてsyntheticデータと分類結果をプロット
 ![n_clusters:5]({{site.baseurl}}/images/20211020_6.png)  
 ![n_clusters:6]({{site.baseurl}}/images/20211020_7.png)  
 
+---
+
+## SVM  
+
++  2クラス分類
+    + 与えられた入力データが2つのカテゴリーのどちらに属するかを識別する
++ **決定関数(decision function)**
+    + 特徴ベクトルxがどちらのクラスに属するか判定するための関数  
+        + 一般に2クラス分類では $f(x) = \boldsymbol{w}^T \boldsymbol{x} + b$
+    + ある入力データxに対して決定関数$f(x)$を計算し、その符号により2つのクラスに分類  
+    ($\mathrm{sgn}(\cdot)$は符号関数)
+
+$$
+    y = \mathrm{sgn} f(x) = \left\{
+    \begin{array}{ll}
+        +1 & (f(x) > 0) \\
+        -1 & (f(x) < 0)
+    \end{array}
+    \right.
+$$
+
++ **分類境界(classi cation boundary)**
+    + 特徴ベクトルを2つのクラスに分ける境界
++ 線形サポートベクトル分類(ハードマージン)
+    + 分離可能性を仮定したSV分類のこと
+    + **サポートベクトル**
+        + 分類境界に最も近いデータ$x_i$
+    + **マージン**
+        + 分類境界を挟んで2つのクラスがどのくらい離れているか
+    + **マージン最大化(margin maximization)**
+        + なるべく大きなマージンを持つ分類境界を探す
+    + **分離可能(separable)**
+        + n個の訓練データを全て正しく分類できるwとbの組が存在する場合、訓練データは決定関数$f(x)$により<u>分離可能(separable)</u>と表現する
+    + 分類境界$f(x) = 0$と$x_i$との距離  
+
+        $$
+            \overbrace{
+                \frac{|f(x_i)|}{|| \boldsymbol{w} ||} = \frac{| \boldsymbol{w}^T \boldsymbol{x}_i + b|}{|| \boldsymbol{w} ||}
+            }^{Hesseの公式}
+             = \frac{y_i[ \boldsymbol{w}^T \boldsymbol{x}_i + b ]}{|| \boldsymbol{w} ||} \\  
+            \Longrightarrow \mathrm{min}_i \frac{y_i[ \boldsymbol{w}^T \boldsymbol{x}_i + b ]}{|| \boldsymbol{w} ||} = \frac{M( \boldsymbol{w}, b )}{|| \boldsymbol{w} ||} \\  
+            \space \\  
+            || \boldsymbol{w} || = \sqrt{w_1^2 + w_2^2 + \cdots + w_n^2} (\boldsymbol{w}のL2ノルム)
+        $$
+
+    + SVMの目的関数  
+
+        $$
+            \mathrm{max}_{w, b} 
+            \biggl[ 
+                \mathrm{min}_i \frac{y_i[ \boldsymbol{w}^T \boldsymbol{x}_i + b ]}{|| \boldsymbol{w} ||}
+            \biggr]
+            = \mathrm{max}_{w, b} \frac{M( \boldsymbol{w}, b )}{|| \boldsymbol{w} ||} \tag{1}
+        $$
+
+    + **制約条件(constrain)**
+
+        $$
+            \mathrm{min}_i 
+            \Bigl[ 
+                y_i[ \boldsymbol{w}^T \boldsymbol{x}_i + b ]
+            \Bigr]
+            = M( \boldsymbol{w}, b ) 
+            \Longleftrightarrow 全ての i に対して y_i[ \boldsymbol{w}^T \boldsymbol{x}_i + b ] \geq M( \boldsymbol{w}, b ) \tag{2}
+        $$
+
+<br>
+
+【式(1)と(2)を簡素化する】  
+
+$$
+    \tilde{ \boldsymbol{w} } = \frac{ \boldsymbol{w} }{M(\boldsymbol{w}, b)}, \qquad \tilde{ b } = \frac{b}{M(\boldsymbol{w}, b)}
+$$
+
+とすると、  
+
+$$
+    \begin{split}
+        &\mathrm{min}_i 
+        \Bigl[ 
+            y_i[ \tilde{\boldsymbol{w}}^T \boldsymbol{x}_i + \tilde{b} ]
+        \Bigr]
+        = 1 
+        \Longleftrightarrow 全ての i に対して y_i[ \tilde{\boldsymbol{w}}^T \boldsymbol{x}_i + \tilde{b} ] \geq 1  \\  
+        &\mathrm{max}_{\tilde{w}, \tilde{b}} \frac{1}{|| \tilde{\boldsymbol{w}} ||}
+    \end{split}
+$$
+
+$\frac{1}{\|\| \tilde{ \boldsymbol{w} } \|\|}$の最大化は  
++ $\|\| \tilde{ \boldsymbol{w} } \|\|$の最大化と等価
++ $\frac{1}{2}\|\| \tilde{ \boldsymbol{w} } \|\|^2$の最小化と等価
+
+なので、  
+
+$$
+    \mathrm{min}_{w, b} \frac{1}{2} ||\boldsymbol{w}||^2, \quad ただし、全てのiに対して y_i[\boldsymbol{w}^T x_i + b] \geq 1 \tag{3}
+$$
+
+(式(3)以降、$\tilde{w}, \tilde{b}$を単に$w, b$と表す。表記の簡単のため)  
+
+<br>
+
++ **線形サポートベクトル分類(ソフトマージン)**
+    + SV分類を分離可能でないデータに適用できるように拡張  
+    式(3)の条件を、次のように緩和  
+    
+    $$
+        y_i[\boldsymbol{w}^T x_i + b] \geq 1 - \xi_i \quad (i = 1, \cdots, n) \\  
+        \underbrace{\xi_i}_{グザイ / クサイ / クシー}: スラック変数(\mathrm{slack \space variable})
+    $$
+    
+    + $f(x) = 1$と$f(x) = -1$の間の距離をマージンと解釈
+    + マージンを最大化、分類の誤差$\xi_i$を最小化する
+        
+
+    $$
+        \begin{split}
+            &\mathrm{min}_{w, b, \xi}
+            \Bigl[
+                \overbrace{
+                    \frac{1}{2}||w||^2
+                }^{マージン最大化}
+                + 
+                \overbrace{
+                    C \sum_{i=1}^{n} \xi_i
+                }^{誤差最小化}
+            \Bigr] \\  
+            &ただし \space y_i[\boldsymbol{w}^T x_i + b] \geq 1 - \xi_i, \quad \xi_i \geq 0 \quad (i = 1, \cdots, n) \\  
+            &\qquad \qquad \boldsymbol{\xi} = {\xi_1, \cdots, \xi_n}^T
+        \end{split}
+    $$
+
+    + **正則化係数 (regularization parameter)** $C$
+        + 正の定数、ハイパーパラメータ
+        + 大きいほどハードマージンに近づく
+            + 大きすぎると分離境界に対して目的関数が発散して計算できなくなる
+        + 小さいほど誤分類を許容する
+        + **交差検証法(cross validation)** などで決める
