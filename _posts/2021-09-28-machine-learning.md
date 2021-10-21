@@ -1099,11 +1099,141 @@ $$
         + 大きすぎると分離境界に対して目的関数が発散して計算できなくなる
     + 小さいほど誤分類を許容する
     + **交差検証法(cross validation)** などで決める
+
+### SVMにおける双対(そうつい)表現
+
++ **主問題**
+    + 式(3), (4)のような最適化問題
++ **双対問題(dual problem)**
+    + ラグランジュ関数に関する最適化問題
+
     $$
+        \max_{\alpha, \mu} \min_{\boldsymbol{w}, b, \boldsymbol{\xi}} L(\boldsymbol{w}, b, \boldsymbol{\xi}, \boldsymbol{\alpha}, \boldsymbol{\mu}) \tag{5}
     $$
+
+    + メリット
+        + 主問題より変数を少なくできる
+        + 分類境界の非線形化を考える際、双対形式の方が有利
+
++ 補足:
+    + **勾配(gradient)**
+
+        $$
+            \left(
+                \begin{array}{c}
+                    \partial_{x_1} f(\boldsymbol{x}) \\  
+                    \vdots \\  
+                    \partial_{x_n} f(\boldsymbol{x})
+                \end{array}
+            \right)
+            \equiv \frac{\partial}{\partial \boldsymbol{x}} f(\boldsymbol{x}) = \partial_x f(\boldsymbol{x}) = \overbrace{\nabla}^{nabla}_x f(\boldsymbol{x})
+        $$
+
+        + 関数$f(\boldsymbol{x})$の停留値$\boldsymbol{x}^*$
+
+        $$
+            \frac{\partial}{\partial \boldsymbol{x}} f(\boldsymbol{x}) | _{x = x^*} = \boldsymbol{0} \\  
+            \space \\  
+            (0はn次元のゼロベクトル)
+        $$
+        + **停留点(Stationary point)**
+            + 関数の微分係数が0となる点
+        + **鞍点(saddle point)**
+            + ある方向から見ると極小点
+            + その直交する方向から見ると極大点
+
+### 双対表現の導出
+
+ソフトマージンの場合の最適化問題の双対問題を考える  
+
+ラグランジュ関数は  
+
+$$
+    L(\boldsymbol{w}, b, \boldsymbol{\xi}, \boldsymbol{\alpha}, \boldsymbol{\mu}) = \frac{1}{2}||\boldsymbol{w}||^2 + C \sum_{i=1}^{n} \xi_i - \sum_{i=1}^{n} \alpha_i 
+    \Bigl[
+            y_i[\boldsymbol{w}^T \boldsymbol{x}_i + b] - 1 + \xi_i
+    \Bigr]
+    - \sum_{i=1}^{n} \mu_i \xi_i \tag{6}
+$$
+
+$$
+    \boldsymbol{\alpha} = (\alpha_1, \cdots, \alpha_n)^T,
+    \quad
+    \boldsymbol{\mu} = (\mu_1, \cdots, \mu_n)^T \\  
+    \alpha_i \geq 0, \space \mu_i \geq 0 \space (i = 1, \cdots, n)
+$$
+
++ **主変数(primal variable)**
+    + $\boldsymbol{w}, b, \boldsymbol{\xi}$
+    + 双対問題の場合、制約条件は課されていない
++ **双対変数(dual variable)**
+    + $\boldsymbol{\alpha}, \boldsymbol{\mu}$
+
+式(5)をより簡素に書き換える  
+
+1. ラグランジュ関数を主変数に関して最小化  
+    以下の連立方程式を満たす $\boldsymbol{w}^\*, b^\*, \boldsymbol{\xi}^\*$ が、主変数に関する最適化問題の最適解  
 
     $$
         \begin{split}
+            \frac{\partial}{\partial \boldsymbol{w}} L(\boldsymbol{w}, b, \boldsymbol{\xi}, \boldsymbol{\alpha}, \boldsymbol{\mu}) | _{\boldsymbol{w} = \boldsymbol{w}^*} &= \boldsymbol{w}^* - \sum_{i=1}^{n} \alpha_i y_i \boldsymbol{x}_i = \boldsymbol{0} \\  
+            \frac{\partial}{\partial b} L(\boldsymbol{w}, b, \boldsymbol{\xi}, \boldsymbol{\alpha}, \boldsymbol{\mu}) | _{b = b^*} &= - \sum_{i=1}^{n} \alpha_i y_i = 0 \\  
+            \frac{\partial}{\partial \xi_i} L(\boldsymbol{w}, b, \boldsymbol{\xi}, \boldsymbol{\alpha}, \boldsymbol{\mu}) | _{\xi_i = \xi_i^*} &= C -  \alpha_i - \mu_i = 0 \quad (i = 1, \cdots, n) \\  
+        \end{split}  
+        \tag{7} 
+    $$
+
+    この最適解($\boldsymbol{w}^\*, b^\*, \boldsymbol{\xi}^\*$)を用いて双対変数を書き直すと  
+
+    $$
+        \max_{\alpha, \mu} \min_{\boldsymbol{w}, b, \boldsymbol{\xi}} L(\boldsymbol{w}, b, \boldsymbol{\xi}, \boldsymbol{\alpha}, \boldsymbol{\mu}) = 
+        \max_{\alpha, \mu} L(\boldsymbol{w}^*, b^*, \boldsymbol{\xi}^*, \boldsymbol{\alpha}, \boldsymbol{\mu})
+    $$
+1. 双対変数$\boldsymbol{\alpha}, \boldsymbol{\mu}$に関する最大化問題を考える  
+    式(7)を式(6)に代入して整理
+    
+    $$
+        \begin{split}
+            L(\boldsymbol{w}^*, b^*, \boldsymbol{\xi}^*, \boldsymbol{\alpha}, \boldsymbol{\mu}) &= \frac{1}{2} \boldsymbol{w}^{*T} \boldsymbol{w} - \sum_{i=1}^{n} \alpha_i y_i \boldsymbol{w}^{*T} \boldsymbol{x}_i - b^*  \sum_{i=1}^{n} \alpha_i y_i + \sum_{i=1}^{n} \alpha_i + \sum_{i=1}^{n} [C - \alpha_i - \mu_i] \xi_i^* \\  
+            &= \frac{1}{2}
+            \Biggl(
+                \sum_{i=1}^{n} \alpha_i y_i \boldsymbol{x}_i
+            \Biggr)^T
+            \Biggl(
+                \sum_{j=1}^{n} \alpha_j y_j \boldsymbol{x}_j
+            \Biggr)
+            - \sum_{i=1}^{n} \alpha_i y_i 
+            \Biggl(
+                \sum_{j=1}^{n} \alpha_j y_j \boldsymbol{x}_j
+            \Biggr)^T
+            \boldsymbol{x}_i + \sum_{i=1}^{n} \alpha_i \\  
+            &= \frac{1}{2} \sum_{i=1}^{n} \sum_{j=1}^{n} \alpha_i \alpha_j y_i y_j \boldsymbol{x}_i^T \boldsymbol{x}_j 
+            - \sum_{i=1}^{n} \sum_{j=1}^{n} \alpha_i \alpha_j y_i y_j \boldsymbol{x}_i^T \boldsymbol{x}_j
+            + \sum_{i=1}^{n} \alpha_i \\  
+            &= - \frac{1}{2} \sum_{i=1}^{n} \sum_{j=1}^{n} \alpha_i \alpha_j y_i y_j \boldsymbol{x}_i^T \boldsymbol{x}_j + \sum_{i=1}^{n} \alpha_i
         \end{split}
     $$
 
+    1. ラグランジュ関数を展開して書き換え
+    1. 以下を代入 (式(7)より)  
+
+        $$
+            \boldsymbol{w}^* = \sum_{i=1}^{n} \alpha_i y_i \boldsymbol{x}_i
+        $$  
+
+        3項目と5項目は0 (式(7)より)
+    1. 以下の性質を使用  
+
+        $$
+            \begin{split}
+                &(\alpha_i y_i \boldsymbol{X})^T = \alpha_i y_i \boldsymbol{X}^T \\  
+                &\sum_{i=1}^{n} \alpha_i y_i \boldsymbol{x}_i^T \sum_{j=1}^{n} \alpha_j y_j \boldsymbol{x}_j = \sum_{i=1}^{n} \sum_{j=1}^{n} \alpha_i \alpha_j y_i y_j \boldsymbol{x}_i^T \boldsymbol{x}_j
+            \end{split}
+        $$
+        
+    1. 
+
+
+参考：  
+
++ ラグランジュの未定乗数法
