@@ -1230,8 +1230,6 @@ $$
                 &\sum_{i=1}^{n} \alpha_i y_i \boldsymbol{x}_i^T \sum_{j=1}^{n} \alpha_j y_j \boldsymbol{x}_j = \sum_{i=1}^{n} \sum_{j=1}^{n} \alpha_i \alpha_j y_i y_j \boldsymbol{x}_i^T \boldsymbol{x}_j
             \end{split}
         $$
-        
-    1. 
 
 
 参考：  
