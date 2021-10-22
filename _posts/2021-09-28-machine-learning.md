@@ -1113,6 +1113,7 @@ $$
 
     + メリット
         + 主問題より変数を少なくできる
+            + 解くのが簡単になる
         + 分類境界の非線形化を考える際、双対形式の方が有利
 
 + 補足:
@@ -1231,7 +1232,117 @@ $$
             \end{split}
         $$
 
+以上より、双対問題は以下のように表現できる  
+
+$$
+    \begin{split}
+        \max_{\alpha, \mu} \min_{\boldsymbol{w}, b, \boldsymbol{\xi}} L(\boldsymbol{w}, b, \boldsymbol{\xi}, \boldsymbol{\alpha}, \boldsymbol{\mu}) &= 
+        \max_{\alpha, \mu} L(\boldsymbol{w}^*, b^*, \boldsymbol{\xi}^*, \boldsymbol{\alpha}, \boldsymbol{\mu}) \\  
+        &= \max_ \alpha 
+        \biggl[
+            - \frac{1}{2} \sum_{i=1}^{n} \sum_{j=1}^{n} \alpha_i \alpha_j y_i y_j \boldsymbol{x}_i^T \boldsymbol{x}_j + \sum_{i=1}^{n} \alpha_i
+        \biggr] \\  
+        & \quad ただし、 \sum_{i=1}^{n} \alpha_i y_i = 0, \quad 0 \leq \alpha_i \leq C  \space (i = 1, \cdots, n)
+    \end{split}
+$$
+
+ハードマージンの場合の双対問題は、$C \rightarrow \infty$とすると以下のように得られる  
+
+$$
+    \max_ \alpha 
+        \biggl[
+            - \frac{1}{2} \sum_{i=1}^{n} \sum_{j=1}^{n} \alpha_i \alpha_j y_i y_j \boldsymbol{x}_i^T \boldsymbol{x}_j + \sum_{i=1}^{n} \alpha_i
+        \biggr], \quad
+         \sum_{i=1}^{n} \alpha_i y_i = 0, \quad 0 \leq \alpha_i \space (i = 1, \cdots, n)
+$$
 
 参考：  
 
 + ラグランジュの未定乗数法
+
+### 主問題と双対問題の関係  
+
+以下の2つのステップで理解する
+
+1. SV分類の主問題は、ラグランジュ関数を用いて以下のように表現できる  
+    (双対問題とはmaxとminの順番が違う)  
+
+    $$
+        \min_{\boldsymbol{w}, b, \boldsymbol{\xi}} \max_{\alpha, \mu} L(\boldsymbol{w}, b, \boldsymbol{\xi}, \boldsymbol{\alpha}, \boldsymbol{\mu})
+    $$  
+
+1. 今考えているSV分類では、以下が成り立つ(強双対性)  
+
+    $$
+        \min_{\boldsymbol{w}, b, \boldsymbol{\xi}} \max_{\alpha, \mu} L(\boldsymbol{w}, b, \boldsymbol{\xi}, \boldsymbol{\alpha}, \boldsymbol{\mu}) =
+        \max_{\alpha, \mu} \min_{\boldsymbol{w}, b, \boldsymbol{\xi}} L(\boldsymbol{w}, b, \boldsymbol{\xi}, \boldsymbol{\alpha}, \boldsymbol{\mu})
+    $$
+
+#### Step 1について  
+
+$$
+    \begin{split}
+        &\max_{\alpha, \mu} L(\boldsymbol{w}, b, \boldsymbol{\xi}, \boldsymbol{\alpha}, \boldsymbol{\mu})  \\  
+        = &\max_{\alpha, \mu} 
+        \biggl[ 
+            \frac{1}{2}||\boldsymbol{w}||^2 + C \sum_{i=1}^{n} \xi_i - \sum_{i=1}^{n} \alpha_i 
+            \Bigl[
+                    y_i[\boldsymbol{w}^T \boldsymbol{x}_i + b] - 1 + \xi_i
+            \Bigr]
+            - \sum_{i=1}^{n} \mu_i \xi_i 
+        \biggr] \\  
+        = & \frac{1}{2}||\boldsymbol{w}||^2 + C \sum_{i=1}^{n} \xi_i + \max_{\alpha, \mu}
+        \biggl[
+            - \sum_{i=1}^{n} \alpha_i 
+            \Bigl[
+                    y_i[\boldsymbol{w}^T \boldsymbol{x}_i + b] - 1 + \xi_i
+            \Bigr]
+            - \sum_{i=1}^{n} \mu_i \xi_i 
+        \biggr] \\  
+        = & \left\{
+            \begin{array}{ll}
+                \frac{1}{2}||\boldsymbol{w}||^2 + C \sum_{i=1}^{n} \xi_i & 全てのi = 1, \cdots, nがy_i[\boldsymbol{w}^T \boldsymbol{x}_i + b] \geq 1 - \xi_i, \space \xi_i \geq 0を満たす場合 \\
+                \infty & それ以外の場合
+            \end{array}
+        \right.
+    \end{split}
+$$
+
+1. 式(6)を用いる
+1. $max_{\alpha, \mu}$に関係ない項を外に出す   
+1. 以下の条件が成り立つ場合、  
+
+    $$
+        \begin{split}
+            &y_i[\boldsymbol{w}^T \boldsymbol{x}_i + b] - 1 + \xi_i \geq 0 \space \Leftrightarrow \space y_i[\boldsymbol{w}^T \boldsymbol{x}_i + b] \geq 1 - \xi_i \\  
+            & \xi_i \geq 0
+        \end{split}
+    $$
+
+    $max_{\alpha, \mu}$の中身が最大になるのは$\boldsymbol{\alpha} = \boldsymbol{\mu} = 0$のときなので、  
+
+    $$
+        \max_{\alpha, \mu}
+        \biggl[
+            - \sum_{i=1}^{n} \alpha_i 
+            \Bigl[
+                    y_i[\boldsymbol{w}^T \boldsymbol{x}_i + b] - 1 + \xi_i
+            \Bigr]
+            - \sum_{i=1}^{n} \mu_i \xi_i 
+        \biggr] 
+        = \frac{1}{2}||\boldsymbol{w}||^2 + C \sum_{i=1}^{n} \xi_i
+    $$
+
+    この条件を満たさない$i$が存在する場合には、以下となってしまう  
+
+    $$
+        \max_{\alpha, \mu}
+        \biggl[
+            - \sum_{i=1}^{n} \alpha_i 
+            \Bigl[
+                    y_i[\boldsymbol{w}^T \boldsymbol{x}_i + b] - 1 + \xi_i
+            \Bigr]
+            - \sum_{i=1}^{n} \mu_i \xi_i 
+        \biggr] 
+        = \infty
+    $$
