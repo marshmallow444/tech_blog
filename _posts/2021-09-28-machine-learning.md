@@ -1317,6 +1317,7 @@ $$
             &y_i[\boldsymbol{w}^T \boldsymbol{x}_i + b] - 1 + \xi_i \geq 0 \space \Leftrightarrow \space y_i[\boldsymbol{w}^T \boldsymbol{x}_i + b] \geq 1 - \xi_i \\  
             & \xi_i \geq 0
         \end{split}
+        \tag{8}
     $$
 
     $max_{\alpha, \mu}$の中身が最大になるのは$\boldsymbol{\alpha} = \boldsymbol{\mu} = 0$のときなので、  
@@ -1346,3 +1347,197 @@ $$
         \biggr] 
         = \infty
     $$
+
+【結論】  
+
+この最適化問題は、全ての$i$に対し式(8)が成り立つときのみ考えることができ、  
+主変数に関する最適化問題に帰着する  
+
+$$
+    \min_{\boldsymbol{w}, b, \boldsymbol{\xi}} \max_{\alpha, \mu} L(\boldsymbol{w}, b, \boldsymbol{\xi}, \boldsymbol{\alpha}, \boldsymbol{\mu})
+    = \min_{\boldsymbol{w}, b, \boldsymbol{\xi}} L(\boldsymbol{w}, b, \boldsymbol{\xi}, \boldsymbol{\alpha} = \boldsymbol{0}, \boldsymbol{\mu} = \boldsymbol{0}) 
+    = \min_{\boldsymbol{w}, b, \boldsymbol{\xi}} 
+    \biggl[
+        \frac{1}{2}||\boldsymbol{w}||^2 + C \sum_{i=1}^{n} \xi_i
+    \biggr]
+$$
+
+#### Step2について
+
+これまでの内容より  
+
+$$
+    \left\{
+        \begin{array}{ll}
+            主問題 & : \min_{\boldsymbol{w}, b, \boldsymbol{\xi}} \max_{\alpha, \mu} L(\boldsymbol{w}, b, \boldsymbol{\xi}, \boldsymbol{\alpha}, \boldsymbol{\mu}) \\  
+            双対問題 & : \max_{\alpha, \mu} \min_{\boldsymbol{w}, b, \boldsymbol{\xi}} L(\boldsymbol{w}, b, \boldsymbol{\xi}, \boldsymbol{\alpha}, \boldsymbol{\mu})
+        \end{array}
+    \right.
+$$
+
+それぞれの最適化問題の最適解を$(\boldsymbol{w}^\*, b^\*, \boldsymbol{\xi}^\*), \space (\boldsymbol{\alpha}^\*,  \boldsymbol{\mu}^\*)$とすると、  
+
+$$
+    \left\{
+        \begin{array}{ll}
+            主問題 & : \max_{\alpha, \mu} L(\boldsymbol{w}^*, b^*, \boldsymbol{\xi}^*, \boldsymbol{\alpha}, \boldsymbol{\mu}) \\  
+            双対問題 & : \min_{\boldsymbol{w}, b, \boldsymbol{\xi}} L(\boldsymbol{w}, b, \boldsymbol{\xi}, \boldsymbol{\alpha}^*, \boldsymbol{\mu}^*)
+        \end{array}
+    \right.
+$$
+
+これらの最適値に関し、以下が成り立つ  
+
+$$
+    \min_{\boldsymbol{w}, b, \boldsymbol{\xi}} L(\boldsymbol{w}, b, \boldsymbol{\xi}, \boldsymbol{\alpha}^*, \boldsymbol{\mu}^*)
+    \leq
+    L(\boldsymbol{w}^*, b^*, \boldsymbol{\xi}^*, \boldsymbol{\alpha}^*, \boldsymbol{\mu}^*)
+    \leq
+    \max_{\alpha, \mu} L(\boldsymbol{w}^*, b^*, \boldsymbol{\xi}^*, \boldsymbol{\alpha}, \boldsymbol{\mu}) \\  
+$$
+
+
++ **弱双対性(weak duality)**  
+    双対問題の最適解は主問題の最適値以下となる  
+
+$$
+    \min_{\boldsymbol{w}, b, \boldsymbol{\xi}} L(\boldsymbol{w}, b, \boldsymbol{\xi}, \boldsymbol{\alpha}^*, \boldsymbol{\mu}^*)
+    \leq
+    \max_{\alpha, \mu} L(\boldsymbol{w}^*, b^*, \boldsymbol{\xi}^*, \boldsymbol{\alpha}, \boldsymbol{\mu})
+$$
+
+*  **強双対性(strong duality)**  
+    主問題と双対問題の目的関数値が最適解において一致する  
+
+$$
+    \min_{\boldsymbol{w}, b, \boldsymbol{\xi}} L(\boldsymbol{w}, b, \boldsymbol{\xi}, \boldsymbol{\alpha}^*, \boldsymbol{\mu}^*)
+    =
+    \max_{\alpha, \mu} L(\boldsymbol{w}^*, b^*, \boldsymbol{\xi}^*, \boldsymbol{\alpha}, \boldsymbol{\mu})
+$$
+
+強双対性が成り立つ場合には  
+
+$$
+    L(\boldsymbol{w}, b, \boldsymbol{\xi}, \boldsymbol{\alpha}^*, \boldsymbol{\mu}^*)
+    =
+    L(\boldsymbol{w}^*, b^*, \boldsymbol{\xi}^*, \boldsymbol{\alpha}^*, \boldsymbol{\mu}^*)
+    =
+    L(\boldsymbol{w}^*, b^*, \boldsymbol{\xi}^*, \boldsymbol{\alpha}, \boldsymbol{\mu}) \\  
+$$
+
+書き直すと  
+
+$$
+    L(\boldsymbol{w}, b, \boldsymbol{\xi}, \boldsymbol{\alpha}^*, \boldsymbol{\mu}^*)
+    \leq
+    L(\boldsymbol{w}^*, b^*, \boldsymbol{\xi}^*, \boldsymbol{\alpha}^*, \boldsymbol{\mu}^*)
+    \leq
+    L(\boldsymbol{w}^*, b^*, \boldsymbol{\xi}^*, \boldsymbol{\alpha}, \boldsymbol{\mu}) \\  
+$$
+
+$\Rightarrow L(\boldsymbol{w}^\*, b^\*, \boldsymbol{\xi}^\*, \boldsymbol{\alpha}^\*, \boldsymbol{\mu}^\*)$ が  
+
++ 主変数($\boldsymbol{w}, b, \boldsymbol{\xi}$)に関して極小点
++ 双対変数($\boldsymbol{\alpha}, \boldsymbol{\mu}$)に関して極大点
+
+$\qquad \Rightarrow$鞍点になっている
+
+<u>主問題を解いても双対問題を解いても、結局は同じ最適化が得られる</u>  
+
+### カーネルを用いた非線形分離への拡張  
+
+そのままでは直線分離できないデータでも、高次元に拡張することで線形分離が可能になるケースがある  
+
+【非線形分離の基本的なアイディア】  
+
+1. 入力データをより次元の高い空間(特徴空間)のデータに拡張(**写像(map)**)
+1. その高次元空間で線形分離を行う
+1. その結果を元の入力データに落とし込む
+
+![高次元空間での分離1](https://kenyu-life.com/wp-content/uploads/2019/04/SVM_kernel4.jpg)  
+(画像：[https://kenyu-life.com/wp-content/uploads/2019/04/SVM_kernel4.jpg](https://kenyu-life.com/wp-content/uploads/2019/04/SVM_kernel4.jpg))  
+
+![高次元空間での分離2](https://statlab.co.jp/seminar/images/redwine01u.jpg)  
+(画像：[https://statlab.co.jp/seminar/images/redwine01u.jpg](https://statlab.co.jp/seminar/images/redwine01u.jpg))  
+
+入力データで$n$次元であるデータをより高次の$r$次元の特徴空間へ変換する関数  
+
+$$
+    \phi(\boldsymbol{x}) =
+    \left(
+            \begin{array}{c}
+                \phi_1 (\boldsymbol{x}) \\  
+                \vdots \\  
+                \phi_r (\boldsymbol{x})
+            \end{array}
+    \right)
+$$
+
+SV分類における双対問題での目的関数は、  
+
+$$
+    \max_ \alpha 
+    \biggl[
+        - \frac{1}{2} \sum_{i=1}^{n} \sum_{j=1}^{n} \alpha_i \alpha_j y_i y_j \boldsymbol{x}_i^T \boldsymbol{x}_j + \sum_{i=1}^{n} \alpha_i
+    \biggr]
+$$
+
+この写像$\phi(\boldsymbol{x})$により、次のように特徴空間上での目的関数に拡張される  
+
+$$
+    \max_ \alpha 
+    \biggl[
+        - \frac{1}{2} \sum_{i=1}^{n} \sum_{j=1}^{n} \alpha_i \alpha_j y_i y_j \phi (\boldsymbol{x}_i)^T \phi (\boldsymbol{x}_j) + \sum_{i=1}^{n} \alpha_i
+    \biggr]
+$$
+
+この最適化問題を解けば、特徴空間上での分類境界を決定し、入力空間に戻すことで元データに対する非線形分離が可能になる  
+
++ カーネルトリック  
+    + $\phi (\boldsymbol{x}_i)^T \phi (\boldsymbol{x}_j)$の内積部分の計算を簡略化するテクニック
+        + 次元拡張によってこの計算量が莫大になり、そのまま解くのは困難
++ **カーネル関数(kernel function)**
+    + $\phi$の内積部分を置き換える
+
+    $$
+        K(\boldsymbol{x}_i, \boldsymbol{x}_j) = \phi (\boldsymbol{x}_i)^T \phi (\boldsymbol{x}_j)
+    $$
+
+    + 2つの$\phi (\boldsymbol{x})$を直接計算することなく内積を見積もることが可能になる
+    + 双対問題を解く計算コストを大幅に削減
+
+カーネル関数を用いて双対問題を表現すると  
+
+$$
+    \left\{
+        \begin{array}{l}
+            \max_ \alpha 
+            \biggl[
+                - \frac{1}{2} \sum_{i=1}^{n} \sum_{j=1}^{n} \alpha_i \alpha_j y_i y_j K( \boldsymbol{x}_i, \boldsymbol{x}_j) + \sum_{i=1}^{n} \alpha_i
+            \biggr] \\  
+            ただし、 \sum_{i=1}^{n} \alpha_i y_i =  0, \quad 0 \leq \alpha_i \quad (i = 1, \cdots, n)
+        \end{array}
+    \right.
+$$
+
+カーネル関数を用いて決定関数を表現すると  
+
+$$
+    f(\boldsymbol{x}) = \boldsymbol{w}^T \boldsymbol{\phi}(\boldsymbol{x}) + b = \sum_{i=1}^{n} \alpha_i y_i K(\boldsymbol{x}_i, \boldsymbol{x}) + b
+$$
+
+代表的なカーネル関数は、次の3つ  
+
+$$
+    \left\{
+        \begin{array}{ll}
+            多項式カーネル & : K( \boldsymbol{x}_i, \boldsymbol{x}_j) = [\boldsymbol{x}_i^T \boldsymbol{x}_j + c]^d \\  
+            ガウスカーネル & : K( \boldsymbol{x}_i, \boldsymbol{x}_j) = \exp (- \gamma ||\boldsymbol{x}_i - \boldsymbol{x}_j||^2) \\  
+            シグモイドカーネル & : K( \boldsymbol{x}_i, \boldsymbol{x}_j) = \tanh (b \boldsymbol{x}_i^T \boldsymbol{x}_j + c) \\  
+        \end{array}
+    \right.
+$$
+
++ $c, d, \gamma$はハイパーパラメータ  
++ ガウスカーネルはRBF(radial basis function)とも呼ばれる
+
