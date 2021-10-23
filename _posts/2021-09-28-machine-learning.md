@@ -1541,3 +1541,25 @@ $$
 + $c, d, \gamma$はハイパーパラメータ  
 + ガウスカーネルはRBF(radial basis function)とも呼ばれる
 
+### ハンズオン
+
+データを生成して分類を行う  
+
+【線形分離可能な場合】  
+
+ピンクの矢印がサポートベクトル  
+
+![hard_margin]({{site.baseurl}}/images/20211023.png)  
+
+【線形分離不可能な場合】  
+
+RBFカーネルを使用  
+
+![non-linear]({{site.baseurl}}/images/20211023_1.png)  
+
+【ソフトマージンSVM】  
+
+データに重なりがあり線形分離できないが、  
+データ点がマージン内部に入ることや誤分類を許容することでこの問題を回避する  
+
+![soft_margin]({{site.baseurl}}/images/20211023_2.png)  
