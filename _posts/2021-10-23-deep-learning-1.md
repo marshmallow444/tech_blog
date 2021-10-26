@@ -140,14 +140,241 @@ z2 = functions.relu(u2)
 + ReLU関数
     + 勾配消失問題の回避とスパース化
         + スパース化するとモデルの中身がシンプルになる
+
+    $$
+        f(x) = 
+        \left\{
+            \begin{array}{ll}
+                x & (x > 0) \\  
+                0 & (x \leqq 0) \\  
+            \end{array}
+        \right.
+    $$
+
+    ```Python
+    # プログラム例
+    def relu(x):
+        return np.maximum(0, x)
+    ```
+
 + シグモイド(ロジスティック)関数
     + 勾配消失問題
+
+    $$
+        f(u) = \frac{1}{1 + e^{-u}}
+    $$
+
+    ```Python
+    # プログラム例
+    def sigmoid(x):
+        return 1 / (1 + np.exp(-x))
+    ```
+
 + ステップ関数
     + 線形分離可能なものしか学習できない
 
-出力層用の活性化関数
+    $$
+        f(x) = 
+        \left\{
+            \begin{array}{ll}
+                1 & (x \geqq 0) \\  
+                0 & (x < 0) \\  
+            \end{array}
+        \right.
+    $$
+
+    ```Python
+    # プログラム例
+    def step_function(x):
+        if x > 0:
+            return 1
+        else:
+            return 0
+    ```
+
+#### 確認テスト
+
+ソースコードのうち、以下に該当する箇所を抜き出す  
+
+$$
+    z = f(u)
+$$
+
+```Python
+# 1層の総出力
+z1 = functions.relu(u1)
+```
+
+```Python
+# 2層の総出力
+z2 = functions.relu(u2)
+```
+
+### 出力層
+
++ 役割
+    + 問題に対する判定結果を出力する  
++ 誤差関数
+    + 訓練データを入力し、NNの出力した判定結果と期待した判定結果の誤差を求める
+    + 例：二乗誤差
+
+        $$
+            E_n(w) = \frac{1}{2} \sum_{j=1}^{J} (y_j - d_j)^2 = \frac{1}{2} ||(y - d)||^2
+        $$
+
+        ```Python
+        # 平均二乗誤差のコード例
+        def mean_squared_error(d, y):
+            return np.mean(np.square(d - y)) / 2
+        ```
+
+#### 確認テスト
+
++ なぜ引き算ではなく二乗するか？
+    + 引き算の場合正負の符号の差が出てしまい、全体の誤差を正しく表すのに都合が悪いため
+    + 二乗してそれぞれのラベルでの誤差を正の値にする
++ 上記二乗誤差の式の$\frac{1}{2}$はどういう意味をもつか？
+    + 誤差逆伝搬の計算において、誤差関数の微分を用いる際の計算を簡単にするため(本質的な意味はない)
+
+#### 出力層の活性化関数
 
 + ソフトマックス関数
 + 恒等写像
 + シグモイド関数
+
+中間層との違い
+
++ 値の強弱
+    + 中間層：しきい値の前後で信号の強弱を調整
+    + 出力層：信号の大きさ(比率)はそのままに変換
++ 確率出力
+    + 分類問題の場合、以下が必要
+        + 出力層の出力は0~1の範囲に限定
+        + 総和を1とする
+
+出力層の種類 - 全結合NN
+
+| | 回帰 | 二値分類 | 多クラス分類 |
+| --- | --- | --- | --- |
+| 活性化関数 |  恒等写像 | シグモイド関数 | ソフトマックス関数 |
+| 誤差関数 | 二乗誤差 | 交差エントロピー | 交差エントロピー |
+
++ 恒等写像
+
+    $$
+        f(u) = u
+    $$
+
++ シグモイド関数
+
+    $$
+        f(u) = \frac{1}{1 + e^{-u}}
+    $$
+
+    ```Python
+    # シグモイド関数
+    def sigmoid(x):
+        return 1 / (1 + np.exp(-x))
+    ```
+
++ ソフトマックス関数
+
+    $$
+        f(i, u) = \frac{e^{u_i}}{\sum_{k=1}^{K} e^{u_k}}
+    $$
+
+    ```Python
+    # ソフトマックス関数
+    def softmax(x): 
+        if x.ndim == 2:
+            # ミニバッチのときの処理
+            x = x.T
+            x = x - np.max(x, axis=0)
+            y = np.exp(x) / np.sum(np.exp(x), axis=0)
+            rerurn y.T
+        
+        x = x - np.max(x)   # オーバーフロー対策
+        return np.exp(x) / np.sum(np.exp(x))
+    ```
+
+【訓練データサンプルあたりの誤差】  
+
++ 二乗誤差 (実際には平均二乗誤差が用いられることが多い)
+    
+    $$
+        E_n(W) = \frac{1}{2} \sum_{i=1}^{I} (y_n - d_n)^2
+    $$
+
++ 交差エントロピー
+
+    $$
+        E_n(W) = - \sum_{i=1}^{I} d_i \log y_i
+    $$
+
+【学習サイクルあたりの誤差】  
+
+$$
+    E(W) = \sum_{n=1}^{N} E_n
+$$
+
+#### 確認テスト
+
+(1) ~ (3)の数式に該当するソースコードを示し、一行ずつ処理の説明をせよ  
+
+$$
+    \overbrace{f(i, u)}^{(1)}  = \frac{\overbrace{e^{u_i}}^{(2)} }{ \underbrace{\sum_{k=1}^{K} e^{u_k}}_{(3)} }
+$$
+
++ (1): `def softmax(x):`
++ (2): `np.exp(x)`
+    + 1クラス分の確率
++ (3): `np.sum(np.exp(x))`
+    + 全クラス分の確率の和  
+$\space$  
++ 各行の説明
+
+    ```Python
+    def softmax(x): 
+        if x.ndim == 2:
+            # ミニバッチのときの処理
+            x = x.T                                     # 転置
+            x = x - np.max(x, axis=0)                   # オーバーフロー対策
+            y = np.exp(x) / np.sum(np.exp(x), axis=0)   # softmaxの値を計算する
+            return y.T                                  # 転置して返す
+        
+        x = x - np.max(x)                               # オーバーフロー対策
+        return np.exp(x) / np.sum(np.exp(x))            # softmaxの値を計算して返す
+    ```
+
+#### 確認テスト
+
+【交差エントロピー】  
+
+(1), (2)の数式に該当するソースコードを示し、1行ずつ処理の説明をせよ  
+
+$$
+    \overbrace{E_n(w)}^{(1)}  = \overbrace{- \sum_{i=1}^{I} d_i \log y_i}^{(2)}
+$$
+
++ (1): `def cross_entropy_error(d, y):`
++ (2): `-np.sum(np.log(y[np.arange(batch_size), d] + 1e-7)) `  
+$\space$  
++ 各行の説明  
+    ```Python
+    def cross_entropy_error(d, y):
+        if y.ndim == 1:                 # 1次元行列の場合
+            d = d.reshape(1, d.size)    # 2次元行列に変形
+            y = y.reshape(1, y.size)    # 2次元行列に変形
+        
+        if d.size == y.size:
+            # 教師データがone-hot-vectorの場合、正解ラベルのインデックスに変換
+            d = d.argmax(axis=1)        # 配列内の最大要素のインデックスを取得
+        
+        batch_size = y.shape[0]         # バッチサイズを取得
+        return -np.sum(np.log(y[np.arange(batch_size), d] + 1e-7)) / batch_size # 交差エントロピーを計算して返す
+    ```
+    + `y`: 0か1の配列
+    + `batch_size`: ミニバッチの何番目？
+    + `d`: d番目は0 or 1?
+    + `1e-7`: 対数関数では0のとき$- \infty$に飛ぶ。これを防ぐための処理  
 
