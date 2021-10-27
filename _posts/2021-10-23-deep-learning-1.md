@@ -378,3 +378,205 @@ $\space$
     + `d`: d番目は0 or 1?
     + `1e-7`: 対数関数では0のとき$- \infty$に飛ぶ。これを防ぐための処理  
 
+### 勾配降下法
+
++ 勾配降下法
++ 確率的勾配降下法
++ ミニバッチ勾配降下法
+
+パラメータ$w$を最適化  
+誤差を最小にする$w$を見つける  
+
+#### 勾配降下法  
+
+全サンプルの平均誤差  
+
+$$
+    w^{(t + 1)} = w^{(t)} - \epsilon \nabla E\\  
+    \space \\  
+    \nabla E = \frac{\partial E}{\partial w} = 
+    \biggl[
+        \frac{\partial E}{\partial w_1} \cdots \frac{\partial E}{\partial w_M}
+    \biggr]
+$$
+
+→前回の値$w^{(t)}$から誤差$\epsilon \nabla E$を引いた値が今回の値$w^{(t + 1)}$  
+
+【$\epsilon$：学習率】  
++ 大きすぎる場合：
+    + 最小値にたどり着かず、発散する
++ 小さすぎる場合：
+    + 収束するまでに時間がかかる
+    + 局所解に陥る場合あり
+
+【認識に必要なデータ数】  
+画像分類：1クラスあたり1000~5000枚あると精度が出る  
+自然言語モデル：Wikipediaの全てのデータを100~200エポック学習すると、ある程度結果が出る
+
+#### 確率的勾配降下法 (SGD)
+
+ランダムに抽出したサンプルの誤差   
+
+$$
+    w^{(t + 1)} = w^{(t)} - \epsilon \nabla E_n\\  
+$$
+
+メリット：  
+
++ データが冗長な場合の計算コスト軽減
++ 望まない局所極小解に収束するリスクを軽減
++ オンライン学習ができる
+
+#### 確認テスト
+
++ オンライン学習とは？
+    + 学習データを入力すると、その都度パラメータを更新する
++ バッチ学習とは？
+    + 予め全データを準備しておき、一気に全ての学習データを更新する
+
+メモリの容量には限りがあるので、オンライン学習を使うことが多い  
+
+#### ミニバッチ勾配降下法
+
+ミニバッチ$D_t$に属するサンプルの平均誤差  
+(ミニバッチ：ランダムに分割したデータの集合)  
+
+$$
+    \begin{split}
+        &w^{(t + 1)} = w^{(t)} - \epsilon \nabla E_t \\  
+        &E_t = \frac{1}{N_t} \sum_{n \in D_t} E_n \\  
+        &N_t = | D_t | \\  
+        & (N_t: バッチ数)  
+    \end{split}
+$$
+
+メリット：  
+
++ 計算機の計算資源を有効利用
+    + スレッド並列化(CPU)やSIMD並列化(GPU)
+        + **SIMD**: Single Instruction Multi Data
+            + 一つの命令を同時に並列実行
+    + 各バッチに対する処理を並列にできる
+
+#### 確認テスト
+
+以下の数式の意味を図に描いて説明せよ  
+
+$$
+    w^{(t + 1)} = w^{(t)} - \epsilon \nabla E_t
+$$
+
+![test_mini_batch]({{site.baseurl}}/images/20211027.drawio.png)  
+
+1. 1エポック目を学習する
+1. 2エポック目は、1エポック目での間違いに学習率をかけた分を修正して学習する
+1. 3エポック目以降も、同様に学習していく
+
+### 誤差勾配の計算
+
+どう計算する？  
+
+$$
+    \nabla E = \frac{\partial E}{\partial w} = 
+    \biggl[
+        \frac{\partial E}{\partial w_1} \cdots \frac{\partial E}{\partial w_M}
+    \biggr]
+$$
+
+【数値微分】  
+プログラムで微小な数値を生成し、擬似的に微分を計算する  
+
+$$
+    \frac{\partial E}{\partial w_m} \approx \frac{E(w_m + h) - E(w_m - h)}{2h}
+$$
+
+$h$: 微小な値  
+$m$番目の$w$を微小変化させた状態で、  
+全ての$w$について誤差$E$を計算  
+
+デメリット：計算量が多く、負荷が大きい  
+
+→代わりに**誤差逆伝播法**を利用する  
+
+### 誤差逆伝播法
+
+算出された誤差を、出力層から順に微分し、前の層へ順に伝播  
+最小限の計算で各パラメータでの微分値を<u>解析的に</u>計算する方法  
+
+![back_propagation]({{site.baseurl}}/images/20211027_1.drawio.png)  
+
+dとy(正解と予測結果)から誤差$E(y)$を計算する  
+誤差から微分を逆算する  
+→不要な再帰的計算を避けて微分を算出できる  
+
+#### 確認テスト
+
+すでに行った計算結果を保持するソースコードを抽出せよ  
+
+```Python
+# 出力層でのデルタ
+delta2 = functions.d_mean_squared_error(d, y)
+```
+
+【誤差勾配の計算】  
+
+$$
+    \begin{array}{ll}
+        E(y) = \frac{1}{2} \sum_{j=1}^{J} (y_j - d_j)^2 = \frac{1}{2} || y - d ||^2 & : 誤差関数 = 二乗誤差関数 \\  
+        y = u^{(u)} & : 出力層の活性化関数 = 恒等写像 \\  
+        u^{(l)} = w^{(l)} z{(l-1)}  + b^{(l)} & : 総入力の計算
+    \end{array}
+$$
+
+$$
+    \begin{split}
+        &\frac{\partial E}{\partial w_{ji}^{(2)}} = 
+        \overbrace{
+            \frac{\partial E}{\partial y}
+        }^{【1】}
+        \overbrace{
+            \frac{\partial y}{\partial u}
+        }^{【2】}
+        \overbrace{
+            \frac{\partial u}{\partial w_{ji}^{(2)}}
+        }^{【3】} \\  
+        \space \\  
+        &【1】\frac{\partial E(y)}{\partial y} = \frac{\partial}{\partial y} \frac{1}{2} || y  - d ||^2 = y - d \\  
+        &【2】\frac{\partial y(u)}{\partial u} = \frac{\partial u}{\partial u} = 1 \\  
+        &【3】\frac{\partial u(w)}{\partial w_{ji}} = \frac{\partial}{\partial w_{ji}}(w^{(l)} z^{(l-1)} + b^{(l)})
+        = \frac{\partial}{\partial w_{ji}}
+        \left(
+            \left[
+                \begin{array}{c}
+                    w_{11} z_1 + \cdots + w_{1i z_i} + \cdots + w_{1I} z_I \\  
+                    \vdots \\  
+                    w_{j1} z_1 + \cdots + w_{ji z_i} + \cdots + w_{jI} z_I \\  
+                    \vdots \\  
+                    w_{J1} z_1 + \cdots + w_{Ji z_i} + \cdots + w_{JI} z_I \\  
+                \end{array}
+            \right] +
+            \left[
+                \begin{array}{c}
+                    b_1 \\  
+                    \vdots \\  
+                    b_j \\  
+                    \vdots \\  
+                    b_J \\  
+                \end{array}
+            \right]
+        \right)
+        =
+        \left[
+                \begin{array}{c}
+                    0 \\  
+                    \vdots \\  
+                    z_i \\  
+                    \vdots \\  
+                    0 \\  
+                \end{array}
+            \right]
+    \end{split}
+$$
+
+【3】：$w_{ji}$という一つの項目について微分している。そのため、その他の行は全て0になってしまう
+
