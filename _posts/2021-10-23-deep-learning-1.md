@@ -1012,3 +1012,99 @@ params[key] -= self.learning_rate * grad[key] / (np.sqrt(self.h[key]) + 1e-7)
     + モメンタムとRMSPropのメリットを孕む
     + 鞍点問題もクリアしやすい
     + スムーズに学習が進む
+
+### 過学習
+
+テスト誤差と訓練誤差とで学習曲線が乖離がすること  
+ネットワークの自由度が高いと起こりやすい  
+
++ 入力値：少、NN：大
++ パラメータ数が適切でない
++ など
+
+#### L1正則化、L2正則化
+
+ネットワークの自由度を制約する  
+→過学習を防ぐ  
+
+【Weight decay(荷重減衰)】  
++ 過学習の原因：重みが大きい値をとる(と、過学習が発生することがある)
++ 過学習の解決策：誤差に対して正則化項を加算することで、重みを抑制
+
+【数式】  
+
+$$
+    \begin{array}{ll}
+        E_n(w) + \frac{1}{p} \overbrace{\lambda}^{hyper \space parameter} || x ||_p & : 誤差関数に、pノルムを加える \\  
+        || x ||_p = 
+        \Bigl(
+            |x_1|^p  + \cdots + |x_n|^p
+        \Bigr)^{\frac{1}{p}} & : pノルムの計算
+    \end{array}
+$$
+
++ L1正則化：$p = 1$の場合。**Lasso回帰**
++ L2正則化：$p = 2$の場合。**Ridge回帰**
+
+ノルム＝距離  
+
+例：  
+点(x, 0)から点(0, y)までの距離  
++ ユークリッド距離：$\sqrt{x^2 + y^2} \quad$ ←p2ノルム  
++ マンハッタン距離：$x + y \quad \quad \quad$ ←p1ノルム  
+
+【正則化の計算】  
+
+$$
+    \begin{split}
+        &||W^{(1)}||_p = (|W_1^{(1)}|^p + \cdots + |W_n^{(1)}|^p)^{\frac{1}{p}} \\  
+        &||W^{(2)}||_p = (|W_1^{(2)}|^p + \cdots + |W_n^{(2)}|^p)^{\frac{1}{p}} \\  
+        &||x||_p = ||W^{(1)}||_p + ||W^{(2)}||_p \\  
+        &E_n(w) + \underbrace{\frac{1}{p} \lambda ||x||_p}_{正則化項} 
+    \end{split}
+$$
+
+```Python
+# サンプルコード
+np.sum(np.abs(network.params['W' + str(idx)]))
+weight_decay += weight_decay_lambda * np.sum(np.abs(network.params['W' + str(idx)]))
+loss = network.loss(x_batch, b_batch) + weight_decay
+```
+
+[![Ridge](https://image.slidesharecdn.com/random-131223004858-phpapp02/95/prml-49-638.jpg?cb=1420232764)](https://image.slidesharecdn.com/random-131223004858-phpapp02/95/prml-49-638.jpg?cb=1420232764)  
+(画像：[https://www.slideshare.net/yasunoriozaki12/prml-29439402](https://www.slideshare.net/yasunoriozaki12/prml-29439402))  
+
+[![Lasso](https://image.slidesharecdn.com/random-131223004858-phpapp02/95/prml-50-638.jpg?cb=1420232764)](https://image.slidesharecdn.com/random-131223004858-phpapp02/95/prml-50-638.jpg?cb=1420232764)  
+(画像：[https://www.slideshare.net/yasunoriozaki12/prml-29439402](https://www.slideshare.net/yasunoriozaki12/prml-29439402))  
+
+→スパース化(ReLU関数のときのように)  
+
+#### 確認テスト
+
+L1正則化を表しているグラフは？  
+
+【解答】右(Lasso推定量)  
+
+[![L1_L2](https://qiita-user-contents.imgix.net/https%3A%2F%2Fqiita-image-store.s3.ap-northeast-1.amazonaws.com%2F0%2F610167%2F1b82d44f-fbca-be85-2e93-30a0f2857c51.png?ixlib=rb-4.0.0&auto=format&gif-q=60&q=75&w=1400&fit=max&s=4d306778e3717dafaca6dfc9c6595624)](https://qiita-user-contents.imgix.net/https%3A%2F%2Fqiita-image-store.s3.ap-northeast-1.amazonaws.com%2F0%2F610167%2F1b82d44f-fbca-be85-2e93-30a0f2857c51.png?ixlib=rb-4.0.0&auto=format&gif-q=60&q=75&w=1400&fit=max&s=4d306778e3717dafaca6dfc9c6595624)  
+(画像：[https://qiita.com/c60evaporator/items/784f0640004be4eefc51](https://qiita.com/c60evaporator/items/784f0640004be4eefc51))  
+
+この図の意味：上の3Dグラフを上から見て、等高線を引いた感じ  
++ 右上の同心楕円：誤差関数の等高線
++ L2の円、L1の正方形(左下)：正則化項の等高線
++ 同心楕円と左下の[円 / 正方形]の交点：誤差関数と正則化項の最小値
+    + 誤差関数の最小値：同心楕円の中心
+    + 正則化項の最小値：[円 / 正方形]の中心
+
+L1正則化では、$w1$方向の重みが0になる  
+
+#### 例題チャレンジ
+
++ パラメータ正則化
+    + L2正則化の最終的な勾配を計算するコードは？
+        + `grad += rate * param` 
+            + ↑「勾配」なので微分した結果
+    + L1正則化の最終的な勾配を計算するコードは？
+        + `x = np.sign(param)`
+            + ↑あるパラメータに着目。0未満の傾きは-1, 0以上の傾きは1
+
+#### ドロップアウト
