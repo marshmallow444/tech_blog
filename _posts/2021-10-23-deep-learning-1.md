@@ -1135,6 +1135,8 @@ L1正則化では、$w1$方向の重みが0になる
 + 後半部分(C5〜の層)
     + 全結合層
     + 人間が欲しい結果を出す
++ フィルタについて
+    + 例：C1の層では、6種類のフィルタを使って学習する
 
 【畳み込み層】  
 
@@ -1143,7 +1145,108 @@ $\Rightarrow$データの繋がりを反映させることができる
 
 [計算方法のイメージ]  
 フィルターを左上から一定間隔ずつずらしながら、出力値を計算していく  
+フィルター：重み  
 
 [![conv](https://ainow.ai/wp-content/uploads/2021/09/8cdcf5887162a040d0a54e9861a836ef.jpg)](https://ainow.ai/wp-content/uploads/2021/09/8cdcf5887162a040d0a54e9861a836ef.jpg)  
 (画像：[https://ainow.ai/2021/09/16/258469/](https://ainow.ai/2021/09/16/258469/))  
+
+#### 畳み込み層
+
+3次元の空間情報も学習できる  
+
++ 全結合層のデメリット
+    + 画像の場合3次元データだが(w * h * ch)、1次元のデータとして処理される
+        + →RGBの各チャンネル間の関連性が、学習へ反映されない
+
+畳み込み層ではこの問題が解決される  
+
+【バイアス】  
+
+(入力値) * (フィルター)の値へ足す  
+$xW + \underbrace{b}_{バイアス}$  
+
+[![bias](https://qiita-user-contents.imgix.net/https%3A%2F%2Fqiita-image-store.s3.amazonaws.com%2F0%2F70897%2F1cf58b09-85a6-01a5-cf71-b60dab16b8c8.png?ixlib=rb-4.0.0&auto=format&gif-q=60&q=75&w=1400&fit=max&s=c54da9b7a6618eeb11038ab89bd86117)](https://qiita-user-contents.imgix.net/https%3A%2F%2Fqiita-image-store.s3.amazonaws.com%2F0%2F70897%2F1cf58b09-85a6-01a5-cf71-b60dab16b8c8.png?ixlib=rb-4.0.0&auto=format&gif-q=60&q=75&w=1400&fit=max&s=c54da9b7a6618eeb11038ab89bd86117)  
+(画像：[https://qiita.com/nvtomo1029/items/601af18f82d8ffab551e](https://qiita.com/nvtomo1029/items/601af18f82d8ffab551e))  
+
+【パディング】  
+
+出力データのサイズが小さくなることを防ぐために、入力データの周りにデータを足す  
+(以下の画像の例では0にしているが、0以外でもよい。一番近い値など)  
+
+[![padding](https://qiita-user-contents.imgix.net/https%3A%2F%2Fqiita-image-store.s3.amazonaws.com%2F0%2F70897%2F7c2de1fc-ca68-699f-3ac5-d927a0ae52c5.png?ixlib=rb-4.0.0&auto=format&gif-q=60&q=75&w=1400&fit=max&s=e81d890d74dd3a0b41f41faac5680af9)](https://qiita-user-contents.imgix.net/https%3A%2F%2Fqiita-image-store.s3.amazonaws.com%2F0%2F70897%2F7c2de1fc-ca68-699f-3ac5-d927a0ae52c5.png?ixlib=rb-4.0.0&auto=format&gif-q=60&q=75&w=1400&fit=max&s=e81d890d74dd3a0b41f41faac5680af9)  
+(画像：[https://qiita.com/nvtomo1029/items/601af18f82d8ffab551e](https://qiita.com/nvtomo1029/items/601af18f82d8ffab551e))  
+
+【ストライド】  
+
+フィルタを一度にずらす幅  
+
+[![stride](https://assets.st-note.com/production/uploads/images/7872657/picture_pc_0e10907a9e23465579518ac853c34a4b.jpg)](https://assets.st-note.com/production/uploads/images/7872657/picture_pc_0e10907a9e23465579518ac853c34a4b.jpg)  
+(画像：[https://note.com/ryuwryyy/n/nfd0b8ff862aa](https://note.com/ryuwryyy/n/nfd0b8ff862aa))  
+
+【チャンネル】  
+
+フィルタの数  
+以下の画像の例では3  
+
+[![channel](https://assets.st-note.com/production/uploads/images/7872703/picture_pc_8f512bbb99ee456c80b95841b5b7ab35.jpg)](https://assets.st-note.com/production/uploads/images/7872703/picture_pc_8f512bbb99ee456c80b95841b5b7ab35.jpg)  
+(画像：[https://note.com/ryuwryyy/n/nfd0b8ff862aa](https://note.com/ryuwryyy/n/nfd0b8ff862aa))
+
+
+プログラム上では、計算を高速化するために入力データの行列を変形させてから計算する  
+例えば以下のような行列があったら、  
+[![matrices](https://miro.medium.com/max/1258/1*OyklyL9egRmf6tOfp-8eiA.png)](https://miro.medium.com/max/1258/1*OyklyL9egRmf6tOfp-8eiA.png)  
+(画像：[https://medium.com/@\_init\_/an-illustrated-explanation-of-performing-2d-convolutions-using-matrix-multiplications-1e8de8cd2544](https://medium.com/@_init_/an-illustrated-explanation-of-performing-2d-convolutions-using-matrix-multiplications-1e8de8cd2544))  
+
+以下のように変形する  
+[![transformed_matrix](https://miro.medium.com/max/1168/1*RLH7W_baMCmNEdXR6cvahQ.png)](https://miro.medium.com/max/1168/1*RLH7W_baMCmNEdXR6cvahQ.png)  
+(画像：[https://medium.com/@\_init\_/an-illustrated-explanation-of-performing-2d-convolutions-using-matrix-multiplications-1e8de8cd2544](https://medium.com/@_init_/an-illustrated-explanation-of-performing-2d-convolutions-using-matrix-multiplications-1e8de8cd2544))  
+
+→重みの行列との計算が簡単にできる形になる  
+
+#### プーリング層
+
++ Max Pooling: 対象領域のMax値を取得
++ Avg. Pooling: 対象領域の平均値を取得
+
+この層に重みはない  
+
+#### 確認テスト
+
+サイズ6 * 6の入力画像を、サイズ2 * 2のフィルタで畳み込んだときの出力画像のサイズは？  
+なお、ストライドとパディングは1とする  
+
+【解答】6 * 6  
+
+公式  
+
+$$
+    \begin{split}
+        &O_H = \frac{画像の高さ + 2 * パディング高さ - フィルター高さ}{ストライド} + 1 \\  
+        &\space \\  
+        &O_W = \frac{画像の幅 + 2 * パディング幅 - フィルター幅}{ストライド} + 1
+    \end{split}
+$$
+
+### 初期のCNN
+
+#### AlexNet
+
+5層の畳み込み層及びプーリング層など、それに続く3層の全結合層から構成される  
+
+[![AlexNet](https://ml4a.github.io/images/figures/alexnet.jpg)](https://ml4a.github.io/images/figures/alexnet.jpg)  
+(画像：[https://ml4a.github.io/ml4a/jp/convnets/](https://ml4a.github.io/ml4a/jp/convnets/))  
+
+過学習の防止
+→サイズ4096の全結合層の出力にドロップアウトを使用  
+
+【全結合層への変換方法】  
+
++ Flatten: データの形状をベクトルに変換する(1列に並べ替える)
+    + 上図の場合は43,264個のデータになる
++ Global Max Pooling: 各レイヤーで一番大きいものを選ぶ
+    + 上図の場合は256個のデータになる
++ Global Avg Pooling: 各レイヤーの平均を使う
+    + 上図の場合は256個のデータになる
+
+Global Max PoolingやGlobal Avg Poolingの方が精度が高い  
 
