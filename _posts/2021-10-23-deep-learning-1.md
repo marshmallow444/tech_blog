@@ -1250,3 +1250,60 @@ $$
 
 Global Max PoolingやGlobal Avg Poolingの方が精度が高い  
 
+---
+
+## 実装演習
+
+### 1_1_forward_propagation.ipynb
+
+#### 順伝播(単層・単ユニット)
+
++ 配列と数値の初期化方法を変えてみる  
+  →中間層出力が変化する  
+    + 例1:  
+    `W = np.array([[0.1], [0.2]])`, `b = 0.5`の場合  
+    ![fixed_params]({{site.baseurl}}/images/20211104.png)  
+    + 例2:  
+    `W = np.zeros(2)`, `b = np.random.rand()`の場合  
+    ![zeros_rand]({{site.baseurl}}/images/20211104_1.png)  
+    + 例3:  
+    `W = np.random.randint(5, size=(2))`, `b = np.random.rand * 10 -5`の場合  
+    ![rand_rand]({{site.baseurl}}/images/20211104_2.png)  
+
+#### 順伝播(単層・複数ユニット)
+
++ 配列の初期化方法を変えてみる  
+    + 例1:  
+    `W = np.ones([4, 3])`の場合  
+![ones]({{site.baseurl}}/images/20211104_3.png)  
+    + 例2:  
+    `W = np.random.rand(4, 3)`の場合  
+    ![rand]({{site.baseurl}}/images/20211104_4.png)  
+
+#### 順伝播(3層・複数ユニット)
+
++ デフォルトの実行結果:  
+    ![default]({{site.baseurl}}/images/20211104_5.png)  
++ 各パラメータのshapeを表示してみる  
+    + コード:  
+    ![code]({{site.baseurl}}/images/20211104_6.png)  
+    + 結果:  
+    ![result]({{site.baseurl}}/images/20211104_7.png)  
++ ネットワークの初期値をランダム生成してみる
+    + コード:  
+    ![code]({{site.baseurl}}/images/20211104_8.png)  
+    + 結果:  
+    ![result]({{site.baseurl}}/images/20211104_9.png)  
+
+#### 多クラス分類 (2-3-4ネットワーク)
+
++ デフォルトの実行結果:  
+    ![default]({{site.baseurl}}/images/20211104_10.png)  
++ ノードの構成を変えてみる `2-3-4` → `3-5-4`
+    + コード:  
+        + ネットワークの初期化  
+        ![code1]({{site.baseurl}}/images/20211104_11.png)  
+        + 入力値  
+    ![code2]({{site.baseurl}}/images/20211104_12.png)  
+    + 結果:  
+    ![result]({{site.baseurl}}/images/20211104_13.png)  
