@@ -1307,3 +1307,39 @@ Global Max PoolingやGlobal Avg Poolingの方が精度が高い
     ![code2]({{site.baseurl}}/images/20211104_12.png)  
     + 結果:  
     ![result]({{site.baseurl}}/images/20211104_13.png)  
+
+### 1_2_back_propagation.ipynb
+
+逆誤差伝播を行う  
+実行結果：  
+![result_bp]({{site.baseurl}}/images/20211106.png)  
+
+### 1_3_stochastic_gradient_descent.ipynb
+
++ デフォルトの実行結果：  
+    ![default]({{site.baseurl}}/images/20211106_1.png)  
++ 確率的勾配降下法
+    + 以下を試す  
+        ![try]({{site.baseurl}}/images/20211106_2.png)  
+        + 結果：わずかにデータのばらつきが大きくなった  
+            ![result]({{site.baseurl}}/images/20211106_3.png)  
+    + 上記をそのままにして、以下も試す  
+        ![try2]({{site.baseurl}}/images/20211106_4.png)  
+        + 結果：データのばらつきがかなり大きくなった  
+            ![result2]({{site.baseurl}}/images/20211106_5.png)  
+
+### 1_4_1_mnist_sample.ipynb
+
++ デフォルトの実行結果：  
+    ![default]({{site.baseurl}}/images/20211106_6.png)  
+    ![default_graph]({{site.baseurl}}/images/20211106_7.png)  
+    + Xavierの初期値を試す  
+        ![Xavier]({{site.baseurl}}/images/20211106_8.png)  
+        + 結果：training setの正答率のばらつきが大きくなり、test setの正答率は上がった  
+            ![result]({{site.baseurl}}/images/20211106_9.png)  
+            ![graph]({{site.baseurl}}/images/20211106_10.png)  
+    + Heの初期値を試す  
+        ![He]({{site.baseurl}}/images/20211106_11.png)  
+        + 結果：Xavierとほぼ同様の変化があった  
+            ![result]({{site.baseurl}}/images/20211106_12.png)  
+            ![graph]({{site.baseurl}}/images/20211106_13.png)  
