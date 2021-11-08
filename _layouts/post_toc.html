@@ -27,9 +27,15 @@ layout: default
   </header>
 
   <div class="post-content e-content" itemprop="articleBody">
-    <h1>目次</h1>
-    {% include toc.html html=content %}
-    <hr>
+    <details open>
+      <summary>
+        <big><big><big>
+          【目次】
+        </big></big></big>
+      </summary>
+      {% include toc.html html=content %}
+      <hr>
+    </details>
     <br>
     {{ content }}
   </div>
