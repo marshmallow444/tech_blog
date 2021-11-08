@@ -1376,3 +1376,194 @@ Global Max PoolingやGlobal Avg Poolingの方が精度が高い
 実行結果：  
 ![result]({{site.baseurl}}/images/20211107_8.png)  
 ![graph]({{site.baseurl}}/images/20211107_9.png)  
+
++ [try] `hidden_size_list`の数字を変更してみる  
+    + `[40, 20]`から`[1000, 500]`に変更したところ、全ての方法で精度が上がり、  
+    試行回数が比較的少ないうちから精度が上がるようになった
+        + `sigmoid - gauss`の正答率：
+            + トレーニング：0.17 → 0.68
+            + テスト：0.1135 → 0.6654  
+            ![before]({{site.baseurl}}/images/20211107_3.png)  
+            ![after]({{site.baseurl}}/images/20211108.png)  
+        + `ReLU - gauss`の正答率：
+            + トレーニング：0.95 → 0.99
+            + テスト：0.9145 → 0.9584  
+            ![before]({{site.baseurl}}/images/20211107_5.png)  
+            ![after]({{site.baseurl}}/images/20211108_1.png)  
+        + `sigmoid - Xavier`の正答率：
+            + トレーニング：0.83 → 0.87
+            + テスト：0.8744 → 0.8998  
+            ![before]({{site.baseurl}}/images/20211107_7.png)  
+            ![after]({{site.baseurl}}/images/20211108_2.png)  
+        + `ReLU - He`の正答率：
+            + トレーニング：0.95 → 1.0
+            + テスト：0.9548 → 0.9701  
+            ![before]({{site.baseurl}}/images/20211107_9.png)  
+            ![after]({{site.baseurl}}/images/20211108_3.png)  
+    + `[40, 20]`から`[10, 5]`に変更したところ、ほぼ全ての方法で精度が下がり、  
+    試行回数が比較的多くならないと精度が上がらなくなった
+        + `sigmoid - gauss`の正答率：
+            + トレーニング：0.17 → 0.11
+            + テスト：0.1135 → 0.1135  
+            ![before]({{site.baseurl}}/images/20211107_3.png)  
+            ![after]({{site.baseurl}}/images/20211108_4.png)  
+        + `ReLU - gauss`の正答率：
+            + トレーニング：0.95 → 0.74
+            + テスト：0.9145 → 0.7329  
+            ![before]({{site.baseurl}}/images/20211107_5.png)  
+            ![after]({{site.baseurl}}/images/20211108_5.png)  
+        + `sigmoid - Xavier`の正答率：
+            + トレーニング：0.83 → 0.79
+            + テスト：0.8744 → 0.7587  
+            ![before]({{site.baseurl}}/images/20211107_7.png)  
+            ![after]({{site.baseurl}}/images/20211108_6.png)  
+        + `ReLU - He`の正答率：
+            + トレーニング：0.95 → 0.95
+            + テスト：0.9548 → 0.892  
+            ![before]({{site.baseurl}}/images/20211107_9.png)  
+            ![after]({{site.baseurl}}/images/20211108_7.png)  
++ [try]`sigmoid - He`と`ReLU - Xavier`についても試してみる
+    + `sigmoid - He`  
+        + `network`の初期化処理を、以下のようにした  
+            ```
+            hidden_size_list = [40, 20]
+            network = MultiLayerNet(input_size=784, hidden_size_list=hidden_size_list, output_size=10, activation='sigmoid', weight_init_std='He')
+            ```
+        + 結果：  
+            ![result]({{site.baseurl}}/images/20211108_8.png)  
+            ![graph]({{site.baseurl}}/images/20211108_9.png)  
+    + `ReLU - Xavier`
+        + `network`の初期化処理を、以下のようにした  
+            ```
+            hidden_size_list = [40, 20]
+            network = MultiLayerNet(input_size=784, hidden_size_list=hidden_size_list, output_size=10, activation='relu', weight_init_std='Xavier')
+            ```
+        + 結果：  
+            ![result]({{site.baseurl}}/images/20211108_10.png)  
+            ![graph]({{site.baseurl}}/images/20211108_11.png)  
+
+### 2_3_batch_normalization.ipynb
+
++ デフォルトの実行結果：  
+    ![default]({{site.baseurl}}/images/20211108_12.png)  
+    ![graph]({{site.baseurl}}/images/20211108_13.png)  
++ [try]活性化関数や重みの初期値を変えてみる
+    + `network`の初期化処理を、以下のようにした  
+        ```
+        network = MultiLayerNet(input_size=784, hidden_size_list=[40, 20], output_size=10,
+                        activation='relu', weight_init_std='he', use_batchnorm=use_batchnorm)
+        ```
+    + 結果：正答率は上昇した  
+        + トレーニング：0.8 → 0.95
+        + テスト：0.8173 → 0.8981  
+            ![result]({{site.baseurl}}/images/20211108_14.png)  
+            ![graph]({{site.baseurl}}/images/20211108_15.png)  
+
+### 2_4_optimizer.ipynb
+
++ デフォルトの実行結果：
+    + SGD  
+        ![SGD]({{site.baseurl}}/images/20211108_16.png)  
+        ![graph]({{site.baseurl}}/images/20211108_17.png)  
+    + Momentum  
+        ![Momentum]({{site.baseurl}}/images/20211108_18.png)  
+        ![graph]({{site.baseurl}}/images/20211108_19.png)  
+    + MomentumをもとにAdaGradを作ってみよう  
+        ![AdaGrad]({{site.baseurl}}/images/20211108_20.png)  
+        ![graph]({{site.baseurl}}/images/20211108_21.png)  
+    + RMSprop  
+        ![RMSProp]({{site.baseurl}}/images/20211108_22.png)  
+        ![graph]({{site.baseurl}}/images/20211108_23.png)  
+    + Adam  
+        ![Adam]({{site.baseurl}}/images/20211108_24.png)  
+        ![graph]({{site.baseurl}}/images/20211108_25.png)  
++ [try]学習率を変えてみる
+    + 0.01 → 0.1にしてみた結果：  
+    MomentumとAdaGradは正答率向上、RMSpropとAdamは正答率低下。SGDは変化なし  
+        + SGD   
+            + トレーニング： 0.07 → 0.17
+            + テスト： 0.1135 → 0.1135  
+                ![before]({{site.baseurl}}/images/20211108_17.png)  
+                ![after]({{site.baseurl}}/images/20211108_26.png)  
+        + Momentum   
+            + トレーニング： 0.1 → 0.6
+            + テスト： 0.1135 → 0.573  
+                ![before]({{site.baseurl}}/images/20211108_19.png)  
+                ![after]({{site.baseurl}}/images/20211108_27.png)  
+        + MomentumをもとにAdaGradを作ってみよう   
+            + トレーニング： 0.12 → 0.76
+            + テスト： 0.1135 → 0.7306  
+                ![before]({{site.baseurl}}/images/20211108_21.png)  
+                ![after]({{site.baseurl}}/images/20211108_27.png)  
+        + RMSprop   
+            + トレーニング： 0.99 → 0.21
+            + テスト： 0.9421 → 0.1028  
+                ![before]({{site.baseurl}}/images/20211108_23.png)  
+                ![after]({{site.baseurl}}/images/20211108_28.png)  
+        + Adam   
+            + トレーニング： 0.95 → 0.09
+            + テスト： 0.9456 → 0.1028  
+                ![before]({{site.baseurl}}/images/20211108_25.png)  
+                ![after]({{site.baseurl}}/images/20211108_29.png)  
++ [try]活性化関数と重みの初期か方法を変えてみる
+    + 活性化関数はReLU, 初期化方法はXavierにしてみる  
+        + コード
+            ```
+            network = MultiLayerNet(input_size=784, hidden_size_list=[40, 20], output_size=10, activation='relu', weight_init_std='xavier',
+                        use_batchnorm=use_batchnorm)
+            ```  
+        + 結果：SGD, Momentum, AdaGradで正答率が大きく向上、他はあまり変化なし  
+            + SGD   
+                + トレーニング： 0.07 → 0.87
+                + テスト： 0.1135 → 0.8801  
+                    ![before]({{site.baseurl}}/images/20211108_17.png)  
+                    ![after]({{site.baseurl}}/images/20211108_30.png)  
+            + Momentum   
+                + トレーニング： 0.1 → 0.93
+                + テスト： 0.1135 → 0.9325  
+                    ![before]({{site.baseurl}}/images/20211108_19.png)  
+                    ![after]({{site.baseurl}}/images/20211108_31.png)  
+            + MomentumをもとにAdaGradを作ってみよう   
+                + トレーニング： 0.12 → 0.89
+                + テスト： 0.1135 → 0.9296  
+                    ![before]({{site.baseurl}}/images/20211108_21.png)  
+                    ![after]({{site.baseurl}}/images/20211108_32.png)  
+            + RMSprop   
+                + トレーニング： 0.99 → 0.96
+                + テスト： 0.9421 → 0.9479  
+                    ![before]({{site.baseurl}}/images/20211108_23.png)  
+                    ![after]({{site.baseurl}}/images/20211108_33.png)  
+            + Adam   
+                + トレーニング： 0.95 → 0.95
+                + テスト： 0.9456 → 0.958  
+                    ![before]({{site.baseurl}}/images/20211108_25.png)  
+                    ![after]({{site.baseurl}}/images/20211108_34.png)  
++ [try]バッチ正規化をしてみる  
+    + 結果：  
+    SGD, Momentum, AdaGradは正答率が大きく向上、RMSpropとAdamはわずかに低下  
+    ただ、RMSpropとAdamでも比較的少ない試行回数で正答率が向上するようになった  
+        + SGD   
+            + トレーニング： 0.07 → 0.71
+            + テスト： 0.1135 → 0.6722  
+                ![before]({{site.baseurl}}/images/20211108_17.png)  
+                ![after]({{site.baseurl}}/images/20211108_35.png)  
+        + Momentum   
+            + トレーニング： 0.1 → 0.87
+            + テスト： 0.1135 → 0.8984  
+                ![before]({{site.baseurl}}/images/20211108_19.png)  
+                ![after]({{site.baseurl}}/images/20211108_36.png)  
+        + MomentumをもとにAdaGradを作ってみよう   
+            + トレーニング： 0.12 → 0.93
+            + テスト： 0.1135 → 0.8882  
+                ![before]({{site.baseurl}}/images/20211108_21.png)  
+                ![after]({{site.baseurl}}/images/20211108_37.png)  
+        + RMSprop   
+            + トレーニング： 0.99 → 0.98
+            + テスト： 0.9421 → 0.9265  
+                ![before]({{site.baseurl}}/images/20211108_23.png)  
+                ![after]({{site.baseurl}}/images/20211108_38.png)  
+        + Adam   
+            + トレーニング： 0.95 → 0.95
+            + テスト： 0.9456 → 0.9228  
+                ![before]({{site.baseurl}}/images/20211108_25.png)  
+                ![after]({{site.baseurl}}/images/20211108_39.png)  
