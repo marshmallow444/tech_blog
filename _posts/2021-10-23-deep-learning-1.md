@@ -1343,3 +1343,36 @@ Global Max PoolingやGlobal Avg Poolingの方が精度が高い
         + 結果：Xavierとほぼ同様の変化があった  
             ![result]({{site.baseurl}}/images/20211106_12.png)  
             ![graph]({{site.baseurl}}/images/20211106_13.png)  
+
+### 2_1_network_modified.ipynb
+
+1_4_1_mnist_sample.ipynbの改良版  
+実行結果：  
+![result]({{site.baseurl}}/images/20211107.png)
+![graph]({{site.baseurl}}/images/20211107_1.png)  
+
+### 2_2_2_vanishing_gradient_modified.ipynb
+
+#### sigmoid - gauss
+
+実行結果：  
+![result]({{site.baseurl}}/images/20211107_2.png)  
+![graph]({{site.baseurl}}/images/20211107_3.png)  
+
+#### ReLU - gauss
+
+実行結果：  
+![result]({{site.baseurl}}/images/20211107_4.png)  
+![graph]({{site.baseurl}}/images/20211107_5.png)  
+
+#### sigmoid - Xavier
+
+実行結果：  
+![result]({{site.baseurl}}/images/20211107_6.png)  
+![graph]({{site.baseurl}}/images/20211107_7.png)  
+
+#### ReLU - He
+
+実行結果：  
+![result]({{site.baseurl}}/images/20211107_8.png)  
+![graph]({{site.baseurl}}/images/20211107_9.png)  
