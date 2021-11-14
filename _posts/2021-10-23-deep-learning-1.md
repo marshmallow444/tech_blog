@@ -1567,3 +1567,88 @@ Global Max PoolingやGlobal Avg Poolingの方が精度が高い
             + テスト： 0.9456 → 0.9228  
                 ![before]({{site.baseurl}}/images/20211108_25.png)  
                 ![after]({{site.baseurl}}/images/20211108_39.png)  
+        
+### 2_5_overfitting.ipynb
+
+#### overfitting
+
+実行結果  
+![result]({{site.baseurl}}/images/20211114.png)  
+![graph]({{site.baseurl}}/images/20211114_1.png)  
+
+#### weight decay - L2
+
++ 実行結果  
+    ![result]({{site.baseurl}}/images/20211114_2.png)  
+    ![graph]({{site.baseurl}}/images/20211114_3.png)  
++ [try] `weight_decay_lambda`の値を変更して正則化の強さを確認する
+    + `weight_decay_lambda`が`0.01`の場合  
+        →効果が全くない  
+        ![result]({{site.baseurl}}/images/20211114_4.png)  
+        ![graph]({{site.baseurl}}/images/20211114_5.png)  
+    + `weight_decay_lambda`が`0.15`の場合  
+        ![result]({{site.baseurl}}/images/20211114_6.png)  
+        ![graph]({{site.baseurl}}/images/20211114_7.png)  
+    + `weight_decay_lambda`が`0.5`の場合  
+        →途中から精度が落ち、そのまま横ばいになってしまった  
+        ![result]({{site.baseurl}}/images/20211114_8.png)  
+        ![graph]({{site.baseurl}}/images/20211114_9.png)  
+
+#### weight decay - L1
+
++ 実行結果  
+    ![result]({{site.baseurl}}/images/20211114_10.png)  
+    ![graph]({{site.baseurl}}/images/20211114_11.png)  
++ [try] `weight_decay_lambda`の値を変更して正則化の強さを確認する
+    + `weight_decay_lambda`が`0.005`の場合  
+        →正答率は早く上がったが、過学習になってしまった  
+        ![result]({{site.baseurl}}/images/20211114_12.png)  
+        ![graph]({{site.baseurl}}/images/20211114_13.png)  
+    + `weight_decay_lambda`が`0.1`の場合  
+        ![result]({{site.baseurl}}/images/20211114_14.png)  
+        ![graph]({{site.baseurl}}/images/20211114_15.png)  
+    + `weight_decay_lambda`が`0.15`の場合  
+        →途中から精度が落ち、そのまま横ばいになってしまった  
+        ![result]({{site.baseurl}}/images/20211114_16.png)  
+        ![graph]({{site.baseurl}}/images/20211114_17.png)  
+
+#### Dropout
+
++ 実行結果  
+    ![result]({{site.baseurl}}/images/20211114_18.png)  
+    ![graph]({{site.baseurl}}/images/20211114_19.png)  
++ [try] `dropout_ratio`の値を変更してみる   
+    + `dropout_ratio`が`0.1`の場合  
+        →正答率は上がったものの、過学習している  
+        ![result]({{site.baseurl}}/images/20211114_20.png)  
+        ![graph]({{site.baseurl}}/images/20211114_21.png)  
+    + `dropout_ratio`が`0.2`の場合  
+        →正答率は十分には上がらなかったが、トレーニングデータとテストデータの正答率の差は縮まった  
+        ![result]({{site.baseurl}}/images/20211114_22.png)  
+        ![graph]({{site.baseurl}}/images/20211114_23.png)  
++ [try] `optimizer`と`dropout_ratio`の値を変更してみる  
+    + `optimizer`: `Momentum`, `dropout_ratio`: `0.1`の場合  
+        ![result]({{site.baseurl}}/images/20211114_24.png)  
+        ![graph]({{site.baseurl}}/images/20211114_25.png)  
+    + `optimizer`: `AdaGrad`, `dropout_ratio`: `0.1`の場合  
+        ![result]({{site.baseurl}}/images/20211114_26.png)  
+        ![graph]({{site.baseurl}}/images/20211114_27.png)  
+    + `optimizer`: `Adam`, `dropout_ratio`: `0.1`の場合  
+        ![result]({{site.baseurl}}/images/20211114_28.png)  
+        ![graph]({{site.baseurl}}/images/20211114_29.png)  
+    + `optimizer`: `Momentum`, `dropout_ratio`: `0.35`の場合  
+        (`SGD`の場合と違い、`dropout_ratio`が`0.2`でも過学習した。`0.35`くらいがちょうど良さそう)  
+        ![result]({{site.baseurl}}/images/20211114_30.png)  
+        ![graph]({{site.baseurl}}/images/20211114_31.png)  
+    + `optimizer`: `AdaGrad`, `dropout_ratio`: `0.425`の場合  
+        ![result]({{site.baseurl}}/images/20211114_32.png)  
+        ![graph]({{site.baseurl}}/images/20211114_33.png)  
+    + `optimizer`: `Adam`, `dropout_ratio`: `0.437`の場合  
+        ![result]({{site.baseurl}}/images/20211114_34.png)  
+        ![graph]({{site.baseurl}}/images/20211114_35.png)  
+
+#### Dropout + L1
+
+実行結果  
+![result]({{site.baseurl}}/images/20211114_36.png)  
+![graph]({{site.baseurl}}/images/20211114_37.png)  
