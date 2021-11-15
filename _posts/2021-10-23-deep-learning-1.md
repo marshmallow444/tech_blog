@@ -1652,3 +1652,45 @@ Global Max PoolingやGlobal Avg Poolingの方が精度が高い
 実行結果  
 ![result]({{site.baseurl}}/images/20211114_36.png)  
 ![graph]({{site.baseurl}}/images/20211114_37.png)  
+
+### 2_6_simple_convolution_network_after.ipynb
+
+#### image to column
+
++ 実行結果  
+    ![result]({{site.baseurl}}/images/20211115.png)  
++ [try] `im2col`の処理を確認する
+    + 関数内で`transpose`の処理をしている行をコメントアウトして下のコードを実行してみる  
+      →要素の順番が変わってしまった  
+        ![without_transpose]({{site.baseurl}}/images/20211115_1.png)  
+    + `input_data`の各次元のサイズやフィルターサイズ・ストライド・パディングを変えてみる
+        + 以下のように変えた結果
+            + `number`: 3
+            + `channel`: 2
+            + `width`: 6
+            + `height`: 6
+            + `filter_w`: 4
+            + `filter_h`: 4
+            + `stride`: 2
+        ![result]({{site.baseurl}}/images/20211115_2.png)  
++ [try] `col2im`の処理を確認する
+    + `im2col`の確認で出力した`col`を`image`に変換して確認する  
+        ![result]({{site.baseurl}}/images/20211115_3.png)  
+
+#### simple convolution network class
+
+実行結果  
+![result]({{site.baseurl}}/images/20211115_4.png)  
+![graph]({{site.baseurl}}/images/20211115_5.png)  
+
+### 2_7_double_convolution_network_after.ipynb
+
+実行結果  
+![result]({{site.baseurl}}/images/20211115_6.png)  
+![graph]({{site.baseurl}}/images/20211115_7.png)  
+
+### 2_8_deep_convolution_net.ipynb
+
+実行結果  
+![result]({{site.baseurl}}/images/20211115_8.png)  
+![graph]({{site.baseurl}}/images/20211115_9.png)  
