@@ -472,15 +472,160 @@ gradient * rate
 
 ### 全体像
 
+[![LSTM](https://agirobots.com/wp/wp-content/uploads/2020/07/Basic-LSTM-cell-1536x617.png)](https://agirobots.com/wp/wp-content/uploads/2020/07/Basic-LSTM-cell-1536x617.png)  
+(画像：[https://agirobots.com/lstmgruentrance-noformula/](https://agirobots.com/lstmgruentrance-noformula/))  
+
+基本的にやっていることはRNNと同じ  
+点線(出力側→入力側)は時間的なループを表す  
+**CEC**が大事  
+
 ### CEC
+
+誤差カルーセル(Constant Error Caroucel)  
+記憶機能だけをもつ  
+勾配消失問題・勾配爆発問題：勾配が1であれば解決できる  
+
+$$
+    \delta^{t-z-1} = \delta^{t-z}
+    \left\{
+        W f'(u^{t-z-1})
+    \right\}
+    = 1 \\  
+    \frac{\partial E}{\partial c^{t-1}}
+    = \frac{\partial E}{\partial c^t} \frac{\partial c^t}{\partial c^{t-1}}
+    = \frac{\partial E}{\partial c^t} \frac{\partial}{\partial c^{t-1}}\{a^t - c^{t-1}\}
+    = \frac{\partial E}{\partial c^t}
+$$
+
+ **課題**  
+入力データについて、時間依存度に関係なく重みが一律  
+→NNの学習特性がない  
+→CECの前後に学習機能をもつものを置くことで対処  
+
+入力重み衝突：入力層→隠れ層の重み  
+出力重み衝突：隠れ層→出力層の重み  
 
 ### 入力ゲートと出力ゲート
 
++ 役割
+    + 入力ゲートと出力ゲートへの入力値の重みを、重み行列$W, U$で可変可能とする
+    + →CECの課題を解決
++ 入力ゲート
+    + CECに対し、入力データを「こんなふうに」覚えてくださいね、と指示する
+        + 「こんなふうに」の部分、CECへの覚えさせ方をNNで学習
+    + 今回の入力値と前回の中間層からの出力値を元に、今回の入力データをどう記憶するか決める
+        + 今回の入力値に対する重み：$W_i$
+        + 前回の出力値に対する重み：$U_i$
+        + どれくらい覚えさせるか：$V_i c(t-1)$
++ 出力ゲート
+    + CECから取り出したデータを「こんなふうに」利用する、と決める
+        + 「こんなふうに」の部分をNNで学習
+    + 今回の入力値と前回の中間層からの出力値を元に、今回の記憶したデータをどう利用するか決める
+        + 今回の入力値に対する重み：$W_o$
+        + 前回の出力値に対する重み：$U_o$
+        + どれくらい利用するか：$V_o c(t)o(t)$
+
+
 ### 忘却ゲート
+
+過去の情報が要らなくなった場合、そのタイミングで情報を忘却させる  
+これがないと、不要になった情報が削除できない  
+→大昔の不要なデータが影響を与える可能性が出てしまう  
+
+$$
+    c(t) = i(t) \cdot \underbrace{a(t)}_{i(t)が活性化関数を通った結果} + \underbrace{f(t)}_{forget} \cdot c(t-1)
+$$
+
+**確認テスト**  
+
+以下の文章をLSTMに入力し、空欄に当てはまる単語を予測したい  
+文中の「とても」という言葉は空欄の予測において  
+なくなっても影響を及ぼさないと考えられる  
+この場合、どのゲートが作用する？  
+<br>
+「映画おもしろかったね。ところで、とてもお腹が空いたから何か<u>【空欄】</u>。」  
+
+【解答】  
+忘却ゲート  
+
+**演習チャレンジ**  
+
+以下のプログラムはLSTMの順伝播を行うもの  
+ただし_sigmoid関数は要素ごとにシグモイド関数を作用させる  
+(け)に当てはまるのは？  
+
+```Python
+def lstm(x, prev_h, prev_c, W, U, b):
+    # セルへの入力やゲートをまとめて計算し、分離
+    lstm_in = _activation(x.dot(W.T) + prev_h.dot(U.T) + b)
+    a, i, f, o = np.hsplit(lstm_in, 4)
+
+    # 値を変換、セルへの入力:(-1, 1) ゲート:(0, 1)
+    a = np.tanh(a)
+    input_gate = _sigmoid(i)
+    forget_gate = _sigmoid(f)
+    output_gate = _sigmoid(o)
+
+    # セルの状態を計算し、中間層の出力を計算
+    c = 【(け)】
+    h = output_gate * np.tanh(c)
+    return c, h
+```
+
+【解答】  
+input_gate * a + forget_gate * c  
+
+【解説】  
+新しいセルの状態 = 計算されたセルへの入力 * 入力ゲート + 1ステップ前のセルの状態 * 忘却ゲート
 
 ### 覗き穴結合
 
+CEC自身の値に、重み行列を介して伝播可能にした構造  
+→CECの保存されている過去の情報を、  
+　任意のタイミングで他のノードへ伝播させたり  
+　任意のタイミングで忘却させたりしたい  
+→CEC自身の値は、ゲート制御に影響を与えていない  
+→CECの状態も判断材料に使ってみる  
+
+(あまり大きな改善はみられなかった)  
+
 ## GRU
+
+パラメータを大幅に削減し、LSTMと同等またはそれ以上の精度が望めるようになった構造  
+→計算負荷が低い  
+(LSTMはパラメータ数が多く、計算負荷が高い)  
+
+[![GRU](https://ichi.pro/assets/images/max/724/1*yBXV9o5q7L_CvY7quJt3WQ.png)](https://ichi.pro/assets/images/max/724/1*yBXV9o5q7L_CvY7quJt3WQ.png)  
+(画像：[https://ichi.pro/lstm-oyobi-gru-no-zukai-gaido-suteppubaisuteppu-no-setsumei-75771469479713](https://ichi.pro/lstm-oyobi-gru-no-zukai-gaido-suteppubaisuteppu-no-setsumei-75771469479713))  
+
+隠れ層の状態：  
+
+$$
+    h(t) = f
+    \left(
+        W_r x(t) + U_r \cdot (r(t) \cdot h(t-1)) b_h(t)
+    \right)
+$$
+
+リセットゲート：  
+隠れ層をどのような状態で保持するかを制御  
+
+$$
+    r(t) = W_r x(t) + U_r \cdot h(t-1) + b_h(t)
+$$
+
+更新ゲート：  
+保持している値をどのように使って出力を得るか制御
+
+$$
+    z(t) = W_z x(t) + U_z \cdot h(t-1) + b_z(t)
+$$
+
+隠れ層からの出力：  
+
+$$
+    z(t) \cdot h(t-1) + (1-z(t)) \cdot h(t)
+$$
 
 ## 双方向RNN
 
