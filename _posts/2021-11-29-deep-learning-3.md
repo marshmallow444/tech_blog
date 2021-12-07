@@ -603,7 +603,7 @@ CEC自身の値に、重み行列を介して伝播可能にした構造
 $$
     h(t) = f
     \left(
-        W_r x(t) + U_r \cdot (r(t) \cdot h(t-1)) b_h(t)
+        W_h x(t) + U_h \cdot (r(t) \cdot h(t-1)) b_h(t)
     \right)
 $$
 
@@ -611,7 +611,7 @@ $$
 隠れ層をどのような状態で保持するかを制御  
 
 $$
-    r(t) = W_r x(t) + U_r \cdot h(t-1) + b_h(t)
+    r(t) = W_r x(t) + U_r \cdot h(t-1) + b_r(t)
 $$
 
 更新ゲート：  
