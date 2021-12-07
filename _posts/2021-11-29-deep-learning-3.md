@@ -636,29 +636,246 @@ LSTMとCECが抱える問題について、それぞれ簡潔に述べよ
 LSTM: パラメータが多いので、計算量が多い  
 CEC: 学習能力がない  
 
+**演習チャレンジ**  
+
+GRU(Gated Recurrent Unit)もLSTMと同様にRNNの一種であり、  
+単純なRNNにおいて問題となる勾配消失問題を解消し  
+長期的な依存関係を学習することができる。  
+LSTMに比べ変数の数やゲートの数が少なく、より単純なモデルであるが、  
+タスクによってはLSTMよりよい性能を発揮する  
+以下のプログラムはGRUの順伝播を行うプログラム  
+ただし_sigmoid関数は要素ごとにシグモイド関数を作用させる  
+(こ)にあてはまるのは？  
+
+```Python
+def gru(x, h, W_r, U_r, W_z, U_z, W, U):
+    # ゲートを計算
+    r = _sigmoid(x.dot(W_r.T) + h.dot(U_r.T))
+    z = _sigmoid(x.dot(W_z.T) + h.dot(U_z.T))
+
+    # 次状態を計算
+    h_bar = np.tanh(x.dot(W.T) + (r * h).dot(U.T))
+    h_new = 【(こ)】
+    return h_new
+```
+
+【解答】  
+(1-z) * h + z *  h_bar  
+
+【解説】  
+新しい中間状態は、1ステップ前の中間表現と計算された中間表現の線形和で表現される  
+
+**確認テスト**  
+
+LSTMとGRUの違いを簡潔に述べよ  
+
+【解答】  
+LSTMは入力ゲート、忘却ゲート、出力ゲートを用いて学習を行う  
+GRUはリセットゲートと更新ゲートを用いて学習を行う  
+LSTMにはCECがあるが、GRUにはない  
+LSTMはパラメータが多く、GRUは少ない  
+<u>LSTMよりGRUの方が計算量が少ない</u>  
+
 ## 双方向RNN
+
+過去の情報だけでなく、未来の情報を加味することで  
+精度を向上させるためのモデル  
+
+[![bidirectional RNN](https://cvml-expertguide.net/wp-content/uploads/2021/09/78177f26db5c252387d6d0f0ddae57a3.png)](https://cvml-expertguide.net/wp-content/uploads/2021/09/78177f26db5c252387d6d0f0ddae57a3.png)  
+(画像：[https://cvml-expertguide.net/2020/05/17/rnn/](https://cvml-expertguide.net/2020/05/17/rnn/))  
+
+実用例：
++ 文章の推敲
++ 機械翻訳
+
+**演習チャレンジ**  
+
+以下は双方向RNNの順伝播を行うプログラム  
+順方向については入力から中間層への重みW_f  
+一ステップ前の中間層出力から中間層への重みをU_f  
+逆方向に関しては同様にパラメータW_b, U_bをもち、  
+両者の中間層表現をあわせた特徴から出力層への重みはVである  
+_rnn関数はRNNの順伝播を表し中間層の系列を返す関数  
+(か)にあてはまるのは？  
+
+```Python
+def bidirectional_rnn_net(xs, W_f, U_f, W_b, U_b, V):
+    xs_f = np.zeros_like(xs)
+    xs_b = np.zeros_like(xs)
+    for i. x in enumerate(xs):
+        xs_f[i] = x
+        xs_b[i] = x[::-1]
+    hs_f = _rnn(xs_f, W_f, U_f)
+    hs_b = _rnn(xs_b, W_b, U_b)
+    hs = 【(か)】
+    ys = hs.dot(V.T)
+    return ys
+```
+
+【解答】  
+np.concatenate([h_f, h_b[::-1]], axis=1)  
+
+【解説】  
+双方向RNNでは、順方向と逆方向に伝播したときの中間層表現をあわせたものが特徴量となる  
+(横方向に連結するのではなく、縦方向に連結。同じ時間のデータを組にする)  
 
 # RNNでの自然言語処理
 
 ## Seq2Seq
 
+Encoder-Decoderモデルの一種  
+
+実用例：
++ 機械対話
++ 機械翻訳
+
 ### 全体像
+
+[![Seq2Seq](https://pbs.twimg.com/media/DRLO8tUU8AARq3Z?format=jpg&name=900x900)](https://pbs.twimg.com/media/DRLO8tUU8AARq3Z?format=jpg&name=900x900)  
+(画像：[https://twitter.com/yagami_360/status/942065105461637121?lang=ja](https://twitter.com/yagami_360/status/942065105461637121?lang=ja))  
 
 ### Encoder RNN
 
+ユーザがinputしたテキストデータを、  
+単語等のトークンに区切って渡す構造  
+
++ Taking
+    + 文章をトークン毎に分割し、トークン毎のIDに分割する  
+        + 各単語をone-hotベクトルで表す (ベクトルの大きさは万単位)
++ Embedding
+    + IDから、そのトークンを表す分散表現ベクトルに変換する  
+        + 学習で200~300程度の大きさのベクトルにする
+        + 意味の近いものをまとめる
++ Encoder RNN
+    + ベクトルを順番にRNNへ入力していく  
+        1. vec1をRNNへ入力し、hidden stateを出力
+            + このhidden stateと次の入力vec2をまたRNNへ入力してhidden stateを出力。以降繰り返す
+        1. 最後のvecを入れたときのhidden stateをfinal stateとする
+            + final state = thought vector(文脈ベクトル)
+                + 入力した文の意味を表すベクトル
++ [BERT](https://ledge.ai/bert/) 
+    + by Google
+    + 特徴量抽出で良い成績  
++ MLM(Masked Language Model)
+    + 文の一部を隠し、前後の文脈からその部分を予測  
+
 ### Decoder RNN
+
+システムがアウトプットデータを  
+単語等のトークンごとに生成する構造  
+
++ Decoder RNN
+    + Encoder RNNのfinal stateから、各トークンの生成確率を出力
+        + final stateをDecoder RNNのinitial stateとして設定し、Embeddingを入力
++ Sampling
+    + 生成確率に基づいてtokenをランダムに選ぶ
++ Embedding
+    + Samplingで選ばれたtokenをEmbeddingしてDecoder RNNへの次の入力とする
++ Detokenize
+    + 上記をくり返し、Samplingで得られたtokenを文字列に直す
+
+**確認テスト**  
+
+seq2seqの説明として正しいものは？  
+
+【解答】  
+RNNを用いたEncoder-Decoderモデルの一種であり、機械翻訳などのモデルに使われる  
+
+**演習チャレンジ**  
+
+機械翻訳タスクにおいて、入力は複数の単語からなる文(文章)であり、  
+それぞれの単語はone-hotベクトルで表現されている  
+Encoderにおいて、それらの単語は単語埋め込みにより特徴量に変換され、  
+そこからRNNによって(一般にはLSTMを使うことが多い)  
+時系列の情報をもつ特徴へとエンコードされる  
+以下は、入力である文を時系列の情報をもつ特徴量へとエンコードする関数  
+ただし、_activation関数は何らかの活性化関数  
+(き)にあてはまるのは？  
+
+```Python
+def encode(words, E, W, U, b):
+    hidden_size = W.shape[0]
+    h = np.zeros(hidden_size)
+    for w in words:
+        e = 【(き)】
+        h = _activation(W.dot(e) + U.dot(h) + b)
+        return h
+```
+
+【解答】  
+E.dot(w)  
+
+【解説】  
+単語wはone-hotベクトル  
+これを単語埋め込みにより別の特徴量へ変換する  
 
 ### HRED
 
+過去n-1個の発話から次の発話を生成する  
+→より人間らしい文章が生成される  
+
+Seq2Seqの課題を解決   
+→一問一答しかできない  
+→問に対して文脈も何もなく、ただ応答が行われ続ける  
+
+[![HRED](https://cdn-ak.f.st-hatena.com/images/fotolife/k/khide_en/20180225/20180225081620.png)](https://cdn-ak.f.st-hatena.com/images/fotolife/k/khide_en/20180225/20180225081620.png)  
+(画像：[https://khide-en.hatenablog.com/entry/2018/02/25/150000](https://khide-en.hatenablog.com/entry/2018/02/25/150000))  
+
+Seq2Seq + Context RNN  
+Context RNN: Encoderのまとめた各文章の系列をまとめて、  
+これまでの会話コンテキスト全体を表すベクトルに変換する構造  
+→過去の発話の履歴を加味した返答が可能  
+
+課題：
++ 確率的な多様性が字面にしかなく、会話の「流れ」のような多様性がない  
+    + 同じコンテキストを与えられても、答えの内容が毎回会話の流れとしては同じものしか出せない
++ 短く情報量に乏しい答えをしがち
+    + 短くてよくある答えを学ぶ傾向
+        + 「うん」「そうだね」など
+
 ### VHRED
+
+HREDにVAEの潜在変数の概念を追加したもの  
+VAEの潜在変数の概念を追加することで、HREDの課題を解決  
 
 ### VAE
 
 #### オートエンコーダー
 
+教師なし学習  
+
+具体例：  
+28*28の数字の画像を入力し、同じ画像を出力するNN (MNISTの場合)  
+
+構造：  
+    Encoder: 入力データから潜在変数zに変換するNN  
+    Decoder:  逆に潜在変数zをインプットとして元画像を復元するNN   
+
+メリット：  
+    次元削減が行える  
+
+[![Auto Encoder](https://nisshingeppo.com/ai/wp-content/uploads/2021/09/AE%E3%82%AA%E3%83%BC%E3%83%88%E3%82%A8%E3%83%B3%E3%82%B3%E3%83%BC%E3%83%80%E7%95%A5%E5%9B%B3-1024x576.jpg)](https://nisshingeppo.com/ai/wp-content/uploads/2021/09/AE%E3%82%AA%E3%83%BC%E3%83%88%E3%82%A8%E3%83%B3%E3%82%B3%E3%83%BC%E3%83%80%E7%95%A5%E5%9B%B3-1024x576.jpg)  
+(画像：[https://nisshingeppo.com/ai/whats-autoencorder/](https://nisshingeppo.com/ai/whats-autoencorder/))
+
 #### VAE
 
+潜在変数zに確率分布z-N(0, 1)を仮定したもの  
+データを潜在変数zの確率分布という構造に押し込めることを可能にする  
+
+(普通のオートエンコーダの場合、潜在変数zに押し込めたデータの構造がどのような状態かわからない)
+
 ## Word2Vec
+
+Embeddingを得るためのもの  
+学習データからボキャブラリを作成  
+
+RNNの課題
+→単語のような可変長の文字列をNNに与えられない  
+→固定長形式で単語を表す必要あり  
+
+メリット：  
+大規模データの分散表現の学習が、現実的な計算速度とメモリ量で実現可能にした  
+→ボキャブラリ * 任意の単語ベクトル次元で重み行列が誕生  
 
 ## AttentionMechanism
 
