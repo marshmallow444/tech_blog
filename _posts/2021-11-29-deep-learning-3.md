@@ -913,3 +913,78 @@ seq2seqとHRED, HREDとVHREDの違いを簡潔に述べよ
 + VHRED: VAEの機構を取り入れることで、文脈に対して当たり障りのない解答以上の出力ができるように改良されたもの
 
 # 実装演習
+
+## 3_1_simple_RNN_after.ipynb
+
++ 実行結果  
+    ![result]({{site.baseurl}}/images/20211207.png)  
+    ![graph]({{site.baseurl}}/images/20211207_1.png)  
+
++ [try] weight_init_stdやlearning_rate, hidden_layer_sizeを変更してみる  
+    + weight_init_stdを変更
+        + 1→0.1にしてみる  
+            + 発散してしまった  
+                ![0.1]({{site.baseurl}}/images/20211207_2.png)  
+                ![graph]({{site.baseurl}}/images/20211207_3.png)  
+        + 1→0.9にしてみる  
+            + 6000回を超えたあたりから収束  
+                ![0.9]({{site.baseurl}}/images/20211207_4.png)  
+                ![graph]({{site.baseurl}}/images/20211207_5.png)  
+        + 1→3にしてみる  
+            + 6000回あたりまで収束傾向にあったが、その後少し発散気味  
+                ![3]({{site.baseurl}}/images/20211207_6.png)  
+                ![graph]({{site.baseurl}}/images/20211207_7.png)  
+    + learning_rateを変更してみる
+        + 0.1→0.5にしてみる  
+            ![0.5]({{site.baseurl}}/images/20211207_17.png)  
+            ![graph]({{site.baseurl}}/images/20211207_18.png)  
+        + 0.1→0.01にしてみる  
+            ![0.01]({{site.baseurl}}/images/20211207_19.png)  
+            ![graph]({{site.baseurl}}/images/20211207_20.png)  
+    + hidden_layer_sizeを変更してみる
+        + 16→80にしてみる  
+            ![80]({{site.baseurl}}/images/20211207_21.png)  
+            ![graph]({{site.baseurl}}/images/20211207_22.png)  
+        + 16→8にしてみる  
+            ![8]({{site.baseurl}}/images/20211207_23.png)  
+            ![graph]({{site.baseurl}}/images/20211207_24.png)  
+
++ [try] 重みの初期化方法を変更してみる  
+    + Xavier  
+        ![Xavier]({{site.baseurl}}/images/20211207_8.png)  
+        ![graph]({{site.baseurl}}/images/20211207_9.png)  
+    + He  
+        ![He]({{site.baseurl}}/images/20211207_10.png)  
+        ![graph]({{site.baseurl}}/images/20211207_11.png)  
++ [try] 中間層の活性化関数を変更してみる  
+    + ReLU(勾配爆発を確認しよう)
+        ![ReLU]({{site.baseurl}}/images/20211207_12.png)  
+        ![graph]({{site.baseurl}}/images/20211207_13.png)  
+    + tanh(numpyにtanhが用意されている。導関数をd_tanhとして作成しよう)
+        ![tanh]({{site.baseurl}}/images/20211207_14.png)  
+        ![graph]({{site.baseurl}}/images/20211207_15.png)  
+
+## predict_word.ipynb
+
+実行結果  
+
+![result]({{site.baseurl}}/images/20211207_16.png)  
+
+## 3_3_predict_sin.ipynb
+
++ 実行結果  
+    ![result]({{site.baseurl}}/images/20211207_25.png)  
+    ![graph]({{site.baseurl}}/images/20211207_26.png)  
++ [try] iters_numを100にする
+    + 振幅が0に近づいてしまった  
+        ![100]({{site.baseurl}}/images/20211207_27.png)  
+        ![graph]({{site.baseurl}}/images/20211207_28.png)  
++ [try] maxlenを5, iters_numを500, 3000(※時間がかかる)にしよう
+    + maxlenが5, iters_numが500のとき  
+        + 周期が短くなった  
+            ![maxlen:5, iters_num:500]({{site.baseurl}}/images/20211207_29.png)  
+            ![graph]({{site.baseurl}}/images/20211207_30.png)  
+    + maxlenが5, iters_numが3000のとき
+        + 元の波形とほぼ一致した  
+            ![maxlen:5, iters_num:3000]({{site.baseurl}}/images/20211207_31.png)  
+            ![graph]({{site.baseurl}}/images/20211207_32.png)  
