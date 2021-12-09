@@ -171,6 +171,46 @@ ValueNetの入力には、
 
 【Alpha Go Zero】  
 
+AlphaGo Leeとの違い  
++ 教師あり学習を一切行わず、強化学習のみで作成
++ 特徴入力からヒューリスティックな要素を排除、石の配置のみにした
++ PolicyNetとValueNetを一つのネットワークに統合した
++ Residual Netを導入した
++ モンテカルロ木探索からRollOutシミュレーションをなくした
+
+**Alpha Go ZeroのPolicyValueNet**  
+
+![PolicyValueNet]({{site.baseurl}}/images/20211209.drawio.png)  
+
+**Residual Network**  
+
+[![Residual Networkの基本構造](https://i.stack.imgur.com/TfMe9.png)](https://i.stack.imgur.com/TfMe9.png)  
+(画像：[https://stackoverflow.com/questions/49293450/why-each-block-in-deep-residual-network-has-two-convolutional-layers-instead-of](https://stackoverflow.com/questions/49293450/why-each-block-in-deep-residual-network-has-two-convolutional-layers-instead-of))  
+
++ ネットワークにショートカットを追加
+    + 勾配の爆発・消失を抑える
++ 100層を超えるネットワークでの安定した学習を可能にした
++ 層数の違うネットワークのアンサンブル効果が得られている、という説も
++ 派生形
+    + Residual Blockの工夫
+        + Bottleneck
+            + 1 * 1カーネルのConvolutionを使用
+            + 1層目で次元削減、3層目で次元復元の3層構造
+            + メリット：計算量は2層とほぼ同じままで1層増やせる
+        + PreActivation
+            + ResidualBlockの並びを替えたことで性能上昇
+                + BatchNorm→ReLU→Convolution→BatchNorm→ReLU→Convolution→Add
+    + Network構造の工夫
+        + WideResNet
+            + ConvolutionのFilter数をk倍にしたResNet
+            + 1倍→k倍xブロック→2*k倍yブロック、、と段階的に幅を増やす
+                + 浅い層数でも深い層数のものと同等以上の精度
+                + GPUを効率的に使用でき、学習が早い
+        + PyramidNet
+            + 段階的にではなく、角層でFilter数を増やしていくResNet
+                + WideResNetで幅が広がった直後の層に過度の負担←精度が落ちる原因
+    + (E資格にこういうのが出がち。名前と説明の組み合わせを問う)
+
 【Alpha Goの学習】  
 以下のステップで行われる  
 
@@ -178,8 +218,13 @@ ValueNetの入力には、
 (画像：[http://blog.livedoor.jp/lunarmodule7/archives/4635352.html](http://blog.livedoor.jp/lunarmodule7/archives/4635352.html))  
 
 1. 教師あり学習によるRollOutPolicyとPolicyNetの学習
+    + 人間の打った棋譜データを教師として学習
 1. 強化学習によるPolicyNetの学習
 1. 強化学習によるValueNetの学習
+
++ [モンテカルロ木探索](https://jsai.ixsq.nii.ac.jp/ej/index.php?action=pages_view_main&active_action=repository_action_common_download&item_id=9431&item_no=1&attribute_id=1&file_no=1&page_id=13&block_id=23)
+    + 強化学習の手法
+    + Q関数の更新に使う手法
 
 **RollOutPolicy**  
 
@@ -191,17 +236,144 @@ NNではなく線形の方策関数
 
 # 軽量化・高速化技術
 
++ 高速化
+    + モデル並列化
+    + データ並列化
+    + GPU
++ 軽量化
+    + 量子化
+    + 蒸留
+    + プルーニング
++ 分散深層学習
+    + 複数の計算資源(ワーカー)を使用し、並列的にNNを構成することで効率の良い学習を行いたい
+
 ## モデル並列
+
++ 親モデルを各ワーカーに分割し、それぞれのモデルを学習させる
+    + 処理の分岐している部分を複数ワーカーに分けるのが主流
++ 全てのデータで学習が終わったら、一つのモデルに復元
++ モデルが大きい場合はモデル並列化がよい  
+  データが大きい場合はデータ並列化がよい
++ 1台のPCで複数GPUを使う場合が多い
+    + 最後に各ワーカーの出した結果を集める際、比較的高速にできる
++ モデルのパラメータが多いほど、スピードアップの効率も向上
 
 ## データ並列
 
++ 親モデルを各ワーカーに子モデルとしてコピー
++ データを分割し、各ワーカーごとに計算させる
++ 複数台のPCを使う場合が多い
+
+例：
++ 複数台のPCを並列に動かして計算させる
++ 演算器を増やして、1台のPCで複数ワーカーを動かす
++ 暇しているスマホをワーカーに使う
+
+**【同期型と非同期型】**  
+
++ 各モデルのパラメータの合わせ方で、どちらかが決まる
+    + **同期型**
+        + 各ワーカーが計算が終わるのを待つ
+        + 全ワーカーの勾配が出たところで勾配の平均を計算し、親モデルのパラメータを更新
+        + 
+    + **非同期型**
+        + 各ワーカーはお互いの計算を待たない
+        + 学習が終わった子モデルはパラメータサーバへpushされる
+        + 新たに学習を始める時は、パラメータサーバからpopしたモデルに対して学習
++ 比較
+    + 同期型：精度が良い。主流
+        + 全ワーカーを自由に制御できる場合
+    + 非同期型：処理は同期型より早いが、学習が不安定になりやすい
+        + Stale Gradient Problem
+        + 全ワーカーを自由に制御できない場合(スマホをワーカーにするときなど)
+
+【参照論文】  
++ [Large Scale Distributed Deep Networks](https://proceedings.neurips.cc/paper/2012/file/6aca97005c68f1206823815f66102863-Paper.pdf)
+    + TensorFlowの前身といわれる
+    + 並列コンピューティングを用いることで大規模なネットワークを高速に学習させる仕組みを提案
+    + 主にモデル並列とデータ並列(非同期型)の提案
+
 ## GPU
 
-## 量子化
++ GPGPU (General-purpose on GPU)
+    + グラフィック以外の用途で使用されるGPUの総称
++ CPU
+    + 高性能なコアが少数
+    + 複雑で連続的な処理が得意
++ GPU
+    + 比較的低性能なコアが多数
+    + **簡単な並列処理が得意**
+    + NNの学習は単純な行列計算が多いので、高速化が可能
+
+【GPGPU開発環境】  
++ CUDA (DLではほぼこれが使われる)
+    + GPU上で並列コンピューティングを行うためのプラットフォーム
+    + NVIDIA社が開発しているGPUでのみ使用可能
+    + Deep Learning用に提供、使いやすい
++ OpenCL
+    + オープンな並列コンピューティングのプラットフォーム
+    + NVIDIA社以外の会社(Intel, AMD, ARMなど)のGPUからでも使用可能
+    + Deep Learning用の計算に特化してはいない
++  Deep Learningフレームワーク(Tensorflow, Pytorch)内で実装されている。使用時は指定すれば良い
+
+## 量子化 (Quantization)
+
+通常のパラメータの64bit浮動小数点を32bitなど下位の精度に落とす  
+→メモリと演算処理を削減  
+
++ 利点
+    + 計算の高速化
+    + 省メモリ化
++ 欠点
+    + 精度の低下
+
+【精度の低下】  
+
+ほとんどのモデルでは半精度(16bit)で十分  
+実際の問題では、倍精度を単精度にしてもほぼ精度が変わらない  
+
++ 64bit: 倍精度
++ 32bit: 単精度
++ 16bit: 半精度
++ FLOPS: 小数の計算を1秒間に何回行えるか？の単位 (floating operations)
+    + 現在のGPUは、16bitで~150TeraFLOPSくらいの性能
 
 ## 蒸留
 
+精度の高いモデルはニューロンの規模が大きい  
+→規模の大きなモデルの知識を使い、軽量なモデルの作成を行う  
+
+精度の高いモデル→ **知識の継承**  →軽量なモデル  
+
++ **教師モデル**
+    + 予測精度の高い、複雑なモデルやアンサンブルされたモデル
++ **生徒モデル**
+    + 教師モデルをもとに作られる軽量なモデル
+
+[![distillation](https://assets.st-note.com/production/uploads/images/9000535/picture_pc_f51221ab67a49133bd41bfa915ff1a12.jpg?width=800)](https://assets.st-note.com/production/uploads/images/9000535/picture_pc_f51221ab67a49133bd41bfa915ff1a12.jpg?width=800)  
+(画像：[https://note.com/imaimai/n/nae4bc0776c74](https://note.com/imaimai/n/nae4bc0776c74))  
+
++ 教師モデルの重みを固定
++ 生徒モデルの重みを更新していく
+    + 教師モデルと生徒モデルそれぞれの誤差を使う
+
+<br>
+
++ 利点
+    + 少ない学習回数で精度の良いモデルを生成できる
+
 ## プルーニング
+
+モデルの精度に寄与が少ないニューロンを削減  
+→モデルの軽量化、高速化  
+
+[![pruning](https://cocon-corporation.com/wp-content/uploads/2019/02/pruning_neuron.png)](https://cocon-corporation.com/wp-content/uploads/2019/02/pruning_neuron.png)  
+(画像：[https://cocon-corporation.com/cocontoco/pruning-neural-network/](https://cocon-corporation.com/cocontoco/pruning-neural-network/))  
+
+重みが閾値以下の場合ニューロンを削減し、再学習を行う  
+
+参考：[ニューラルネットワークの全結合層における
+パラメータ削減手法の比較](https://db-event.jpn.org/deim2017/papers/62.pdf)  
 
 # 応用技術
 
