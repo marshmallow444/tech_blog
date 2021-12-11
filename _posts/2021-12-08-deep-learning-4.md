@@ -377,9 +377,22 @@ NNではなく線形の方策関数
 
 # 応用技術
 
-試験によく出る！
+ネットワークの特徴が試験によく出る！
 
 ## MobileNet
+
++ 画像認識モデル
+    + 以下の組み合わせで軽量化を実現
+        + Depthwise Convolution
+        + Pointwise Convolution
++ 論文
+    + [MobileNets: Efficient Convolutional Neural Networks for Mobile Vision Applications](https://arxiv.org/abs/1704.04861)
++ 提案手法
+    + ディープラーニングモデルの軽量化・高速化・高精度化を実現
++ [https://qiita.com/HiromuMasuda0228/items/7dd0b764804d2aa199e4](https://qiita.com/HiromuMasuda0228/items/7dd0b764804d2aa199e4)
++ 一般的な畳み込みレイヤー
+    + ストライド1でパディングを適用した場合の計算量
+        + $H \times W \times K \times K \times C \times M$
 
 ## DenseNet
 
