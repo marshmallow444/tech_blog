@@ -381,20 +381,80 @@ NNではなく線形の方策関数
 
 ## MobileNet
 
-+ 画像認識モデル
-    + 以下の組み合わせで軽量化を実現
-        + Depthwise Convolution
-        + Pointwise Convolution
-+ 論文
-    + [MobileNets: Efficient Convolutional Neural Networks for Mobile Vision Applications](https://arxiv.org/abs/1704.04861)
+[![MobileNet](https://iq.opengenus.org/content/images/2021/08/MobileNet-V1-1.png)](https://iq.opengenus.org/content/images/2021/08/MobileNet-V1-1.png)  
+(画像：[https://iq.opengenus.org/ssd-mobilenet-v1-architecture/](https://iq.opengenus.org/ssd-mobilenet-v1-architecture/))
+
 + 提案手法
     + ディープラーニングモデルの軽量化・高速化・高精度化を実現
++ 画像認識モデル
+    + 以下の組み合わせで軽量化を実現  
+    (**Depthwise Separatable Convolution**)
+        + **Depthwise Convolution**
+            + 仕組み
+                + 入力チャネルごとに畳み込みを実施
+                + 出力マップをそれらと結合
+                + フィルタ数(M): 1
+            + 特徴
+                + 計算量が大幅に削減可能
+                    + 通常の畳み込みカーネルは全ての層にかかる
+                    + 出力マップの計算量：$H \times W \times C \times K \times K$
+                + 層間の関係性は全く考慮されない
+                    + PW畳み込みとセットで使うことで解決
+        + **Pointwise Convolution**
+            + 仕組み
+                + 入力マップのポイントごとに畳み込みを実施
+                    + 1 x 1 conv とも呼ばれる
+                + 出力マップ(チャネル数)はフィルタ数分だけ作成可能
+                    + 任意のサイズが指定可能
+            + 特徴
+                + 出力マップの計算量：$H \times W \times C \times M$
 + [https://qiita.com/HiromuMasuda0228/items/7dd0b764804d2aa199e4](https://qiita.com/HiromuMasuda0228/items/7dd0b764804d2aa199e4)
-+ 一般的な畳み込みレイヤー
++ 論文
+    + [MobileNets: Efficient Convolutional Neural Networks for Mobile Vision Applications](https://arxiv.org/abs/1704.04861)
++ (参考)一般的な畳み込みレイヤー
     + ストライド1でパディングを適用した場合の計算量
-        + $H \times W \times K \times K \times C \times M$
+        + $H(eight) \times W(eight) \times K(ernel) \times K(ernel) \times C(hannel) \times M(ap)$
 
 ## DenseNet
+
+[![DenseNet](https://production-media.paperswithcode.com/methods/Screen_Shot_2020-06-20_at_11.35.53_PM_KroVKVL.png)](https://production-media.paperswithcode.com/methods/Screen_Shot_2020-06-20_at_11.35.53_PM_KroVKVL.png)  
+(画像：[https://paperswithcode.com/method/densenet](https://paperswithcode.com/method/densenet))  
+
++ 概要
+    + 画像認識モデル
+    + CNNの一種
+    + 前方の層から後方の層へアイデンティティ接続を介してパスを作り、NNの層が深くなっても学習できるようにした
+    + Dense Blockというモジュールを使用
++ 構造
+    + 初期の畳み込み
+    + Denseブロック
+        + 出力層に前の層の入力を足し合わせる
+            + 層間の情報の伝達を最大にするために、全ての同特徴量サイズの層を結合する
+            [![Dense Block](https://ichi.pro/assets/images/max/724/1*9ysRPSExk0KvXR0AhNnlAA.gif)](https://ichi.pro/assets/images/max/724/1*9ysRPSExk0KvXR0AhNnlAA.gif)  
+            (画像：[https://ichi.pro/rebyu-densenet-komitsudo-tatamikomi-nettowa-ku-gazo-bunrui-200536763594755](https://ichi.pro/rebyu-densenet-komitsudo-tatamikomi-nettowa-ku-gazo-bunrui-200536763594755))
+        + 特徴マップの入力に対し、下記の処理で出力を計算
+            + Batch正規化
+            + ReLU関数による変換
+            + 3 x 3畳み込み層による処理
+        + この出力に入力特徴マップを足し合わせる
+        + 第$l$層の出力:
+            + $x_l = H_l([x_0, x_1, \cdots, x_{l-1}])$
+        + $k$(チャネル数): ネットワークの<u>Growth Rate</u>
+        + 各ブロック内で特徴マップのサイズは同じ
+    + 変換レイヤー
+        + 2つのDense Blockの間にCNNとPoolingを行う
+        + CNNの中間層でチャネルサイズを変更
+        + 特徴マップのサイズを変更し、ダウンサンプリングを行う
+    + 判別レイヤー
++ 特徴
+    + DenseNetとResNetとの違い
+        + DenseNet：前方の各層からの出力全てが後方の層への入力として用いられる
+        + ResNet：前1層の出力のみ、後方の層へ入力
+    + Dense BlockにGrowth Rateというハイパーパラメータ
++ 論文
+    + [Densely Connected Convolutional Networks](https://arxiv.org/pdf/1608.06993.pdf)
+    + [https://www.slideshare.net/harmonylab/densely-connected-convolutional-networks](https://www.slideshare.net/harmonylab/densely-connected-convolutional-networks)
+
 
 ## Layer正規化 / Instance正規化
 
