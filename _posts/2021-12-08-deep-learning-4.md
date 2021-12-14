@@ -130,7 +130,7 @@ $$
 
 # Alpha Go
 
-【Alpha Go Lee】
+## Alpha Go Lee
 
 **Alpha Go LeeのPolicyNet**
 
@@ -169,7 +169,7 @@ PolicyNet, ValueNetの入力(表(a))
 ValueNetの入力には、  
 「手番」(現在の手番が黒番であるか？)が1ch追加される  
 
-【Alpha Go Zero】  
+## Alpha Go Zero  
 
 AlphaGo Leeとの違い  
 + 教師あり学習を一切行わず、強化学習のみで作成
@@ -211,7 +211,7 @@ AlphaGo Leeとの違い
                 + WideResNetで幅が広がった直後の層に過度の負担←精度が落ちる原因
     + (E資格にこういうのが出がち。名前と説明の組み合わせを問う)
 
-【Alpha Goの学習】  
+## Alpha Goの学習  
 以下のステップで行われる  
 
 [![learning](https://livedoor.blogimg.jp/lunarmodule7/imgs/f/9/f9dba059.png)](https://livedoor.blogimg.jp/lunarmodule7/imgs/f/9/f9dba059.png)  
