@@ -555,3 +555,75 @@ NNではなく線形の方策関数
 
 # 実装演習
 
+## 4_1_tensorflow_codes.ipynb
+
++ base
+    + constant
+        + 実行結果  
+            ![constant]({{site.baseurl}}/images/20211214.png)  
+    + placeholder
+        + 実行結果  
+            ![place holder]({{site.baseurl}}/images/20211214_1.png)  
+    + variables
+        + 実行結果  
+             ![variables]({{site.baseurl}}/images/20211214_2.png)  
++ 線形回帰
+    + 実行結果  
+        ![linear regression]({{site.baseurl}}/images/20211214_3.png)  
+        ![graph]({{site.baseurl}}/images/20211214_4.png)  
+    + [try]noiseの値を変更してみる
+        + 0.3 → 0.1にしてみる  
+            ![0.1]({{site.baseurl}}/images/20211214_7.png)  
+            ![graph]({{site.baseurl}}/images/20211214_8.png)  
+        + 0.3 → 0.6にしてみる  
+            ![0.6]({{site.baseurl}}/images/20211214_9.png)  
+            ![graph]({{site.baseurl}}/images/20211214_10.png)  
+    + [try]dの数値を変更してみる
+        + d = 2000にしてみる  
+            ![2000]({{site.baseurl}}/images/20211214_11.png)  
+            ![graph]({{site.baseurl}}/images/20211214_12.png)  
+        + d = 10にしてみる  
+            ![10]({{site.baseurl}}/images/20211214_13.png)  
+            ![graph]({{site.baseurl}}/images/20211214_14.png)  
++ 非線形回帰
+    + 実行結果
+        ![nonlinear regression]({{site.baseurl}}/images/20211214_5.png)  
+        ![graph]({{site.baseurl}}/images/20211214_6.png)  
+    + [try]noiseの値を変更してみる
+        + 0.05 → 0.5にしてみる  
+            ![0.5]({{site.baseurl}}/images/20211214_15.png)  
+            ![graph]({{site.baseurl}}/images/20211214_16.png)  
+        + 0.05 → 0.005にしてみる  
+            グラフでは、変化があまりないように見える  
+            ![0.005]({{site.baseurl}}/images/20211214_17.png)  
+            ![graph]({{site.baseurl}}/images/20211214_18.png)  
+    + [try]dの数値を変更してみる
+        + d = 100にしてみる  
+            ![100]({{site.baseurl}}/images/20211214_19.png)  
+            ![graph]({{site.baseurl}}/images/20211214_20.png)  
+        + d = 1にしてみる
+            ![1]({{site.baseurl}}/images/20211214_21.png)  
+            ![graph]({{site.baseurl}}/images/20211214_22.png)  
++ [try]
+    + 次の式をモデルとして回帰を行う  
+        $y = 30x^2 + 0.5x + 0.2$  
+    + 誤差が収束するようiters_numやlearning_rateを調整する  
++ 分類1層(mnist)
+    + [try]x, d, W, bを定義する
++ 分類3層(mnist)
+    + 実行結果  
+        ![result]({{site.baseurl}}/images/20211214_23.png)  
+        ![graph]({{site.baseurl}}/images/20211214_24.png)  
+    + [try]隠れ層のサイズを変更してみる  
+    + [try]optimizerを変更してみる  
++ 分類CNN(mnist)
+    + 実行結果  
+        ![result]({{site.baseurl}}/images/20211214_25.png)  
+        ![graph]({{site.baseurl}}/images/20211214_26.png)  
+    + [try]dropout率を0にしてみる  
+        ![dropout=0]({{site.baseurl}}/images/20211214_27.png)  
+        ![graph]({{site.baseurl}}/images/20211214_28.png)  
++ (メモ)
+    + Firefoxにて`Matplotlib`を使ってグラフが表示できない  
+        Chromeで試したら表示できた  
+        アドオンが何か悪さをしている？  
