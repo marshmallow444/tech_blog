@@ -458,9 +458,94 @@ NNではなく線形の方策関数
 
 ## Layer正規化 / Instance正規化
 
++ Batch Norm
+    + ミニバッチに含まれるsampleの同一チャネルが同一分布に従うよう正規化  
+        (全ての画像, 一つのch)
++ Layer Norm
+    + それぞれのsampleの全てのpixelsが同一分布に従うよう正規化  
+        (一つの画像、全てのch)
++ Instance Norm
+    + さらにchannelも同一分布に従うよう正規化  
+        (一つの画像、一つのch)
+
+[![Normalization](https://miro.medium.com/max/1340/1*qmWTg5fwhKmMaMhfo0HJIQ.png)](https://miro.medium.com/max/1340/1*qmWTg5fwhKmMaMhfo0HJIQ.png)  
+(画像：[https://medium.com/@arxivtimes/%E3%82%B7%E3%83%B3%E3%83%97%E3%83%AB%E3%81%AA%E6%AD%A3%E8%A6%8F%E5%8C%96group-normalization%E3%81%A8-%E3%82%B3%E3%83%B3%E3%83%86%E3%82%AD%E3%82%B9%E3%83%88%E3%81%AE%E8%BB%A2%E7%A7%BB%E3%82%92%E8%A9%A6%E3%81%BF%E3%81%9Felmo-86b9313f3e24](https://medium.com/@arxivtimes/%E3%82%B7%E3%83%B3%E3%83%97%E3%83%AB%E3%81%AA%E6%AD%A3%E8%A6%8F%E5%8C%96group-normalization%E3%81%A8-%E3%82%B3%E3%83%B3%E3%83%86%E3%82%AD%E3%82%B9%E3%83%88%E3%81%AE%E8%BB%A2%E7%A7%BB%E3%82%92%E8%A9%A6%E3%81%BF%E3%81%9Felmo-86b9313f3e24))  
+
+### Batch Norm
+
+<!--
+[![Batch Norm](https://cdn-ak.f.st-hatena.com/images/fotolife/j/jinbeizame007/20180924/20180924132105.png)](https://cdn-ak.f.st-hatena.com/images/fotolife/j/jinbeizame007/20180924/20180924132105.png)  
+(画像：[https://jinbeizame.hateblo.jp/entry/understanding_batchnorm](https://jinbeizame.hateblo.jp/entry/understanding_batchnorm))  
+-->
+
++ レイヤー間を流れるデータの分布を、<u>ミニバッチ単位で</u>  
+    平均が0, 分散が1になるように正規化
+    + H x W x CのsampleがN個あった場合に、N個の同一チャネルが正規化の単位
+    + チャネルごとに正規化された特徴マップを出力
++ NNにおいて以下の効果
+    + 学習時間の短縮
+    + 初期値への依存低減
+    + 過学習の抑制
++ 問題点
+    + Batch Sizeが小さいと学習が収束しないことがある  
+    →代わりにLayer Normalizationなどが使われることが多い
+    + Batch Sizeがマシンのスペック等の影響を受ける
+
+### Layer Norm
+
++ N個のsampleのうち一つに注目  
+    H x W x Cの全てのpixelが正規化の単位
++ あるsampleの平均と分散を求め正規化を実施
+    + 特徴マップごとに正規化された特徴マップを出力
++ ミニバッチの数に依存しない
++ 入力データや重み行列に対して、以下の操作をしても出力が変わらない
+    + 入力データのスケールに関してロバスト
+    + 重み行列のスケールやシフトに関してロバスト
+    + 参考：[https://www.slideshare.net/KeigoNishida/layer-normalizationnips](https://www.slideshare.net/KeigoNishida/layer-normalizationnips)
+
+### Instance Norm
+
++ 各sampleの各チャネルごとに正規化
+    + Batch Normalizationのバッチサイズ1の場合と等価
++ コントラストの正規化に寄与
++ 画像のスタイル転送やテクスチャ合成タスクなどで利用
++ 参考
+    + [https://blog.cosnomi.com/posts/1493/](https://blog.cosnomi.com/posts/1493/)
+    + [https://gangango.com/2019/06/16/post-573/](https://gangango.com/2019/06/16/post-573/)
+    + [https://blog.albert2005.co.jp/2018/09/05/group_normalization/](https://blog.albert2005.co.jp/2018/09/05/group_normalization/)
+
 ## WaveNet
 
+[![WaveNet](http://musyoku.github.io/images/post/2016-09-17/dilated_conv.png)](http://musyoku.github.io/images/post/2016-09-17/dilated_conv.png)  
+(画像：[http://musyoku.github.io/2016/09/18/wavenet-a-generative-model-for-raw-audio/](http://musyoku.github.io/2016/09/18/wavenet-a-generative-model-for-raw-audio/))  
+
+↑各点は音声データの1サンプル(1/fs秒ごとのデータ)を表す  
+
++ Aaron van den Oord et. al., 2016
+    +  Alpha  Goのプログラムを開発、2014年にGoogleに買収される
++ 生の音声波形を生成する深層学習モデル
++ Pixel CNN(高解像度の画像を精密に生成できる手法)を音声に応用したもの
++ メインアイディア
+    + 時系列データに対して畳み込みを適用
+    + →Dilated Convolution
+        + 層が深くなるにつれて畳み込みリンクを離す
+        + 受容野を簡単に増やせる
++ 論文
+    + [WAVENET: A GENERATIVE MODEL FOR RAW AUDIO](https://arxiv.org/pdf/1609.03499.pdf)
++ 参考
+    + [https://gigazine.net/news/20171005-wavenet-launch-in-google-assistant/](https://gigazine.net/news/20171005-wavenet-launch-in-google-assistant/)
+    + [https://qiita.com/MasaEguchi/items/cd5f7e9735a120f27e2a](https://qiita.com/MasaEguchi/items/cd5f7e9735a120f27e2a)
+    + [https://www.slideshare.net/NU_I_TODALAB/wavenet-86493372](https://www.slideshare.net/NU_I_TODALAB/wavenet-86493372)
+
+
 # 例題解説
+
++ 深層学習を用いて結合確率を学習する際に、効率的に学習が行えるアーキテクチャを提案したことがWaveNetの大きな貢献の一つ  
+    提案された新しいConvolution型アーキテクチャは(あ)と呼ばれ、結合確率を効率的に学習できるようになっている
+    + 答え：Dilated causal convolution
+    + Deconvolution(逆畳み込み)：画像の高解像度化などに使う
++ (あ)を用いた際の大きな利点は、単純なConvolution layerと比べ(い)ことである
+    + パラメータ数に対する受容野が広い
 
 # Appendix
 
