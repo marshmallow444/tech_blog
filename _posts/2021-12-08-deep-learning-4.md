@@ -555,6 +555,8 @@ NNではなく線形の方策関数
 
 # 実装演習
 
+以下、出力結果が長い場合は一部を省略する  
+
 ## 4_1_tensorflow_codes.ipynb
 
 + base
@@ -608,14 +610,115 @@ NNではなく線形の方策関数
     + 次の式をモデルとして回帰を行う  
         $y = 30x^2 + 0.5x + 0.2$  
     + 誤差が収束するようiters_numやlearning_rateを調整する  
+        + コード  
+            ```Python
+            import numpy as np
+            import tensorflow as tf
+            import matplotlib.pyplot as plt
+
+            iters_num = 35000
+            plot_interval = 1000
+
+            # データを生成
+            n=100
+            x = np.random.rand(n).astype(np.float32) * 4 - 2
+            d = 30. * x ** 2 + 0.5 * x + 0.2
+
+            #  ノイズを加える
+            noise = 0.05
+            d = d + noise * np.random.randn(n) 
+
+            # モデル
+            # bを使っていないことに注意.
+            xt = tf.placeholder(tf.float32, [None, 4])
+            dt = tf.placeholder(tf.float32, [None, 1])
+            W = tf.Variable(tf.random_normal([4, 1], stddev=0.01))
+            y = tf.matmul(xt,W)
+
+            # 誤差関数 平均２乗誤差
+            loss = tf.reduce_mean(tf.square(y - dt))
+            optimizer = tf.train.AdamOptimizer(0.001)
+            train = optimizer.minimize(loss)
+
+            # 初期化
+            init = tf.global_variables_initializer()
+            sess = tf.Session()
+            sess.run(init)
+
+            # 作成したデータをトレーニングデータとして準備
+            d_train = d.reshape(-1,1)
+            x_train = np.zeros([n, 4])
+            for i in range(n):
+                for j in range(4):
+                    x_train[i, j] = x[i]**j
+
+            #  トレーニング
+            for i in range(iters_num):
+                if (i+1) % plot_interval == 0:
+                    loss_val = sess.run(loss, feed_dict={xt:x_train, dt:d_train}) 
+                    W_val = sess.run(W)
+                    print('Generation: ' + str(i+1) + '. 誤差 = ' + str(loss_val))
+                sess.run(train, feed_dict={xt:x_train,dt:d_train})
+
+            print(W_val[::-1])
+                
+            # 予測関数
+            def predict(x):
+                result = 0.
+                for i in range(0,4):
+                    result += W_val[i,0] * x ** i
+                return result
+
+            fig = plt.figure()
+            subplot = fig.add_subplot(1,1,1)
+            plt.scatter(x ,d)
+            linex = np.linspace(-2,2,100)
+            liney = predict(linex)
+            subplot.plot(linex,liney)
+            plt.show()
+            ```
+        + 結果  
+            ![try]({{site.baseurl}}/images/20211215.png)  
+            ![graph]({{site.baseurl}}/images/20211215_1.png)  
 + 分類1層(mnist)
     + [try]x, d, W, bを定義する
+        + コード  
+            ```Python
+            x = tf.placeholder(tf.float32, [None, 784])
+            d = tf.placeholder(tf.float32, [None, 10])
+            W = tf.Variable(tf.random_normal([784, 10], stddev=0.01))
+            b = tf.Variable(tf.zeros([10]))
+            ```
+        + 結果  
+            ![x, d, w, b]({{site.baseurl}}/images/20211215_2.png)  
+            ![graph]({{site.baseurl}}/images/20211215_3.png)  
 + 分類3層(mnist)
     + 実行結果  
         ![result]({{site.baseurl}}/images/20211214_23.png)  
         ![graph]({{site.baseurl}}/images/20211214_24.png)  
     + [try]隠れ層のサイズを変更してみる  
+        + hidden_layer_size_1 = 150, hidden_layer_size_2 = 75にしてみる  
+            ![150, 75]({{site.baseurl}}/images/20211215_4.png)  
+            ![graph]({{site.baseurl}}/images/20211215_5.png)  
+        + hidden_layer_size_1 = 2400, hidden_layer_size_2 = 1200にしてみる  
+            ![2400, 1200]({{site.baseurl}}/images/20211215_6.png)  
+            ![graph]({{site.baseurl}}/images/20211215_7.png)  
     + [try]optimizerを変更してみる  
+        + GradientDescentOptimizer (learning_rate=0.95)  
+            ![GradientDescentOptimizer]({{site.baseurl}}/images/20211215_8.png)  
+            ![graph]({{site.baseurl}}/images/20211215_9.png)  
+        + MomentumOptimizer (learning_rate=0.95, momentum=0.1)  
+            ![MomentumOptimizer]({{site.baseurl}}/images/20211215_10.png)  
+            ![graph]({{site.baseurl}}/images/20211215_11.png)  
+        + AdagradOptimizer (learning_rate=0.95)  
+            ![AdagradOptimizer]({{site.baseurl}}/images/20211215_12.png)  
+            ![graph]({{site.baseurl}}/images/20211215_13.png)  
+        + RMSPropOptimizer (learning_rate=0.001)  
+            ![RMSPropOptimizer]({{site.baseurl}}/images/20211215_14.png)  
+            ![graph]({{site.baseurl}}/images/20211215_15.png)  
+        + AdamOptimizer  
+            ![AdamOptimizer]({{site.baseurl}}/images/20211215_16.png)  
+            ![graph]({{site.baseurl}}/images/20211215_17.png)  
 + 分類CNN(mnist)
     + 実行結果  
         ![result]({{site.baseurl}}/images/20211214_25.png)  
@@ -627,3 +730,102 @@ NNではなく線形の方策関数
     + Firefoxにて`Matplotlib`を使ってグラフが表示できない  
         Chromeで試したら表示できた  
         アドオンが何か悪さをしている？  
+
+## 4_3_keras_codes.ipynb  
+
++ keras
+    + 線形回帰
+        + 実行結果
+            ![linear regression]({{site.baseurl}}/images/20211215_18.png)  
+            ![graph]({{site.baseurl}}/images/20211215_19.png)  
+    + 単純パーセプトロン
+        + 実行結果
+            ![Simple perceptron]({{site.baseurl}}/images/20211215_20.png)  
+        + [try]np.random.seed(0)をnp.random.seed(1)に変更
+            ![seed(1)]({{site.baseurl}}/images/20211215_29.png)  
+        + [try]エポック数を100に変更  
+            →lossの値が小さくなった  
+            ![epoch=100]({{site.baseurl}}/images/20211215_30.png)  
+        + [try]AND回路, XOR回路に変更
+            + AND回路
+                + コード  
+                    ```Python  
+                    X = np.array( [[0,0], [0,1], [1,0], [1,1]] )
+                    T = np.array( [[0], [0], [0], [1]] )
+                    ```
+                + 結果：ORより精度が落ちた 
+                    ![AND]({{site.baseurl}}/images/20211215_33.png)  
+            + XOR回路
+                + コード
+                    ```Python
+                    X = np.array( [[0,0], [0,1], [1,0], [1,1]] )
+                    T = np.array( [[0], [1], [1], [0]] )
+                    ```
+                + 結果：lossの値が大きい。うまく学習できていない  
+                    ![XOR]({{site.baseurl}}/images/20211215_34.png)  
+        + [try]OR回路にしてバッチサイズを10に変更  
+            →lossの値が大きくなった  
+            ![batch_size=10]({{site.baseurl}}/images/20211215_31.png)  
+        + [try]エポック数を300に変更しよう  
+            →lossの値が一番小さくなった  
+            ![epoch=300]({{site.baseurl}}/images/20211215_32.png)  
+    + 分類(iris)
+        + 実行結果
+            ![iris]({{site.baseurl}}/images/20211215_21.png)  
+            ![graph]({{site.baseurl}}/images/20211215_22.png)  
+        + [try]中間層の活性関数をsigmoidに変更しよう
+            ![sigmoid]({{site.baseurl}}/images/20211215_35.png)  
+            ![graph]({{site.baseurl}}/images/20211215_36.png)  
+        + [try]SGDをimportしoptimizerをSGD(lr=0.1)に変更しよう
+            ![SGD]({{site.baseurl}}/images/20211215_37.png)  
+            ![graph]({{site.baseurl}}/images/20211215_38.png)  
+    + 分類(mnist)
+        + 実行結果
+        + [try]load_mnistのone_hot_labelをFalseに変更しよう (error)
+            ![error]({{site.baseurl}}/images/20211215_39.png)  
+        + [try]誤差関数をsparse_categorical_crossentropyに変更しよう
+        + [try]Adamの引数の値を変更しよう
+    + CNN分類(mnist)
+        + 実行結果
+            ![cnn mnist]({{site.baseurl}}/images/20211215_23.png)  
+            ![graph]({{site.baseurl}}/images/20211215_24.png)  
+    + cifar10
+        + 実行結果
+            ![cifar10]({{site.baseurl}}/images/20211215_25.png)  
+            ![graph]({{site.baseurl}}/images/20211215_26.png)  
+    + RNN
+        + 実行結果
+            ![RNN]({{site.baseurl}}/images/20211215_27.png)  
+        + [try]RNNの出力ノード数を128に変更
+        + [try]RNNの出力活性化関数を sigmoid に変更
+        + [try]RNNの出力活性化関数を tanh に変更
+        + [try]最適化方法をadamに変更
+        + [try]RNNの入力 Dropout を0.5に設定
+        + [try]RNNの再帰 Dropout を0.3に設定
+        + [try]RNNのunrollをTrueに設定
++ (メモ)
+    + 以下のコードはエラーになり動かなかったので修正
+        + 分類(iris) L.35, 36など
+            ```Python
+            # 修正前：「KeyError: 'acc'」というエラーが出る
+            plt.plot(history.history['acc'])
+            plt.plot(history.history['val_acc'])
+            ```
+            ```Python
+            # 修正後：指定するkeyを変更
+            plt.plot(history.history['accuracy'])
+            plt.plot(history.history['val_accuracy'])
+            ```
+        + 分類(mnist) L.31~33
+            ```Python
+            # 修正前：epsilonがNoneだとエラーになる
+            model.compile(loss='categorical_crossentropy', 
+                        optimizer=Adam(lr=0.001, beta_1=0.9, beta_2=0.999, epsilon=None, decay=0.0, amsgrad=False), 
+                        metrics=['accuracy'])
+            ```
+            ```Python
+            # 修正後：`keras.backend.epsilon()`(デフォルトの値)を設定
+            model.compile(loss='categorical_crossentropy', 
+                        optimizer=Adam(lr=0.001, beta_1=0.9, beta_2=0.999, epsilon=keras.backend.epsilon(), decay=0.0, amsgrad=False), 
+                        metrics=['accuracy'])
+            ```
