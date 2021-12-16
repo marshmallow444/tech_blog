@@ -547,11 +547,203 @@ NNではなく線形の方策関数
 + (あ)を用いた際の大きな利点は、単純なConvolution layerと比べ(い)ことである
     + パラメータ数に対する受容野が広い
 
+---
+
 # 物体検出とSS解説
+
+## Introduction
+
+[![intro](https://data-analysis-stats.jp/wp-content/uploads/2020/07/10_object_detection_classifcation_segmentation.png)](https://data-analysis-stats.jp/wp-content/uploads/2020/07/10_object_detection_classifcation_segmentation.png)  
+(画像：[https://data-analysis-stats.jp/%E6%B7%B1%E5%B1%9E%E5%AD%A6%E7%BF%92/%E7%94%BB%E5%83%8F%E5%88%86%E9%A1%9E%E3%83%BB%E7%89%A9%E4%BD%93%E6%A4%9C%E5%87%BA%E3%83%BB%E3%82%BB%E3%82%B0%E3%83%A1%E3%83%B3%E3%83%86%E3%83%BC%E3%82%B7%E3%83%A7%E3%83%B3%E3%81%AE%E6%AF%94%E8%BC%83/](https://data-analysis-stats.jp/%E6%B7%B1%E5%B1%9E%E5%AD%A6%E7%BF%92/%E7%94%BB%E5%83%8F%E5%88%86%E9%A1%9E%E3%83%BB%E7%89%A9%E4%BD%93%E6%A4%9C%E5%87%BA%E3%83%BB%E3%82%BB%E3%82%B0%E3%83%A1%E3%83%B3%E3%83%86%E3%83%BC%E3%82%B7%E3%83%A7%E3%83%B3%E3%81%AE%E6%AF%94%E8%BC%83/))  
+
++ 入力：画像
++ 出力：
+    + 分類
+        + (画像に対し)(単一または複数の)クラスラベル
+    + 物体検知(物体検知)
+        + Bounding Box
+    + 意味領域分割(Semantic Segmentation)
+        + (各ピクセルに対し)(単一の)クラスラベル
+    + 個体領域分割(Instance Segmentation)
+        + (各ピクセルに対し)(単一の)クラスラベル
+
+## 物体検知
+
+以下が出力される  
+
++ Bounding Box
++ 予測ラベル
++ confidence
+
+### 代表的データセット  
+
+物体検出コンペで用いられたデータセット  
+
+|  | クラス | Train+Val | Box/画像 |  |
+| --- | --- | --- | --- | --- |
+| VOC12 | 20 | 11540 | 2.4 | Instance Annotation |
+| ILSVRC17 | 200 | 476668 |  1.1|  |
+| MS COCO18 | 80 | 123287 | 7.3 | Instance Annotation |
+| OICOD18 | 500 | 1743042 | 7.0 | Instance Annotation |
+
++ VOC: Visual Object Classes
++ ILSVRC: ImageNet Scale Visual Recognition Challenge
+    + ImageNetのサブセット
++ MS COCO: (MicroSoft) Common Object in Context
+    + 物体位置推定に対する新たな評価指標を提案
++ OICOD: Open Images Challenge Object Detection
+    + ILSVRCやMS COCOとは異なるannotation process
+    + Open Images V4のサブセット
+
+Box / 画像
++ 小：アイコン的な写り、日常感とはかけはなれやすい
++ 大：部分的な重なり等も見られる。日常生活のコンテキストに近い
+
+注意点
++ 目的に応じた **Box/画像** の選択を！
++ クラス数が大きければよいとも限らない
+    + 同一の物体に対して違うラベルが付けられることも
+
+### 評価指標
+
+cf: 混同行列  
+    →thresholdを変えると、検出される物体の数も変わる
+
+#### IoU: Intersection over Union
+
+物体検出においてはクラスラベルだけでなく、物体位置の予想精度も評価したい  
+
+[![IoU](https://qiita-user-contents.imgix.net/https%3A%2F%2Fqiita-image-store.s3.amazonaws.com%2F0%2F199265%2F54b47877-9a97-5dbc-f461-b9cf832faefe.png?ixlib=rb-4.0.0&auto=format&gif-q=60&q=75&w=1400&fit=max&s=79ea20fa54664ed839953b4bcb672889)](https://qiita-user-contents.imgix.net/https%3A%2F%2Fqiita-image-store.s3.amazonaws.com%2F0%2F199265%2F54b47877-9a97-5dbc-f461-b9cf832faefe.png?ixlib=rb-4.0.0&auto=format&gif-q=60&q=75&w=1400&fit=max&s=79ea20fa54664ed839953b4bcb672889)  
+(画像：[https://qiita.com/mshinoda88/items/9770ee671ea27f2c81a9](https://qiita.com/mshinoda88/items/9770ee671ea27f2c81a9))  
+
+Confusion Matrixの要素を用いて表現すると  
+
+$$
+    \mathrm{IoU} = \frac{\mathrm{TP}}{\mathrm{TP + FP + FN}}
+$$
+
++ TP: Area of Overlap
++ FN: Ground-Truth Bounding Box - TPの領域
++ FP: Predected Bounding Box - TPの領域
+
+[![Confusion Matrix & IoU](https://ml.1book.info/cv/example_of_confusion_matrix_2_4.jpg)](https://ml.1book.info/cv/example_of_confusion_matrix_2_4.jpg)  
+(画像：[https://ml.1book.info/cv/example_of_confusion_matrix_2.html](https://ml.1book.info/cv/example_of_confusion_matrix_2.html))  
+
+別名: **Jaccard係数**
+
+【入力1枚で見るPrecision/Recall】  
+
++ conf.の閾値を超えているものをピックアップ  
++ IoUも閾値を超えていればTP
++ 既に同じ物体を検出済であれば、最もconf.の高いものを残して他はFP扱いにする   
+    (閾値を超えていても)
+
++ クラス単位でPrecision/Recallを計算する
+
+【Average Precision】  
+
++ IoUの閾値を0.5で固定
++ conf.の閾値を0.05~0.95の範囲で0.05ずつ変化させていく
+    + 各閾値でPrecision, Recallを求める
+
+conf.の閾値を$\beta$とすると、  
+Recall = $R(\beta)$, Precision = $P(\beta)$
+→P = f(R) PR曲線(Precision-Recall curve)
+
+$$
+    \mathrm{AP} = \int_{0}^{1} P(R)dR \qquad ←PR曲線の下側面積
+$$
+
+【mAP: mean Avarage Precision】  
+
+APはクラスラベル固定のもとで考えていた  
+→クラス数が$C$のとき、  
+
+$$
+    \mathrm{mAP} = \frac{1}{C} \sum_{i=1}^{C} \mathrm{AP}_i
+$$
+
+(おまけ)MS COCOで導入された指標  
+
+IoUも0.5から0.95まで0.05刻みでAP&mAPを計算して算術平均を計算  
+位置を厳しく調べていく  
+
+$$
+    \mathrm{mAPcoco} = \frac{\mathrm{mAP}_{0.5} + \mathrm{mAP}_{0.55} + \cdots + \mathrm{mAP}_{0.95}}{10}
+$$
+
+### FPS
+
+**Flames per Second**：検出速度  
+
+[![FPS](https://ichi.pro/assets/images/max/724/1*SnjcWGpeClUN9XwxpOoJGg.png)](https://ichi.pro/assets/images/max/724/1*SnjcWGpeClUN9XwxpOoJGg.png)  
+(画像：[https://ichi.pro/buttai-kenshutsu-moderu-no-rebyu-269886166492508](https://ichi.pro/buttai-kenshutsu-moderu-no-rebyu-269886166492508))  
+
+**inference time**(1フレームあたりにかかる時間)で速度を表すこともある  
+
+[![inference time](https://assets.st-note.com/production/uploads/images/9307533/picture_pc_23d39b7e4350ce52d5754a269a018d19.png?width=800)](https://assets.st-note.com/production/uploads/images/9307533/picture_pc_23d39b7e4350ce52d5754a269a018d19.png?width=800)  
+(画像：[https://note.com/seishin55/n/n542b2b682721](https://note.com/seishin55/n/n542b2b682721))  
+
+## マイルストーン
+
++ 2012
+    + AlexNetの登場→時代はSIFTからDCNNへ
+        + SIFT: Scale Invariant Feature Transform
+            + 参考文献：[object recognition from local scale-invariant features](https://www.cs.ubc.ca/~lowe/papers/iccv99.pdf)
+        + DCNN: Deep Convolutional Neural Network
+            + AlexNetの元論文：[ImageNet Classification with Deep Convolutional
+Neural Networks](https://proceedings.neurips.cc/paper/2012/file/c399862d3b9d6b76c8436e924a68c45b-Paper.pdf)
++ 2013~2018の代表的なネットワーク
+    + VGGNet
+    + GoogLeNet (Inception-v1)
+    + ResNet
+    + Inception-ResNet (Inception-v4)
+    + DenseNet
+    + MobileNet
+    + AmoebaNet
++ 2013~2018の物体検知のフレームワーク
+    + DetectorNet(1段階)
+    + RCNN(2段階)
+    + SPPNet(2段階)
+    + FastRCNN(2段階)
+    + YOLO(1段階)
+    + FasterRCNN(2段階)
+    + SSD(1段階)
+    + RFCN(2段階)
+    + YOLO9000(1段階)
+    + FPN(2段階)
+    + RetinaNet(1段階)
+    + Mask RCNN(2段階)
+    + CornerNet(1段階)
+
+### 物体検知のフレームワーク  
+
+[![framework](https://www.researchgate.net/profile/Anqi-Bao/publication/332612704/figure/fig1/AS:754572620468225@1556915540722/Schematic-plot-for-a-one-stage-detector-and-b-two-stage-detector.jpg)](https://www.researchgate.net/profile/Anqi-Bao/publication/332612704/figure/fig1/AS:754572620468225@1556915540722/Schematic-plot-for-a-one-stage-detector-and-b-two-stage-detector.jpg)  
+(画像：[https://www.researchgate.net/figure/Schematic-plot-for-a-one-stage-detector-and-b-two-stage-detector_fig1_332612704](https://www.researchgate.net/figure/Schematic-plot-for-a-one-stage-detector-and-b-two-stage-detector_fig1_332612704))
+
+【2段階検出器(Two-stage detector)】  
++ 候補領域の検出とクラス推定を  **別々に** 行う
++ 相対的に精度が高い
++ 計算量が多く推論も遅め
+
+【1段階検出器(One-stage detector)】  
++ 候補領域の検出とクラス推定を **同時に** 行う
++ 相対的に精度が低い
++ 計算量が小さく推論も早め
+
+動作例  
+
++ 2段階検出器では、検出した物体を一旦切り出す
++ 1段階検出器では、検出した物体を切り出さない
+
+[![example](https://www.researchgate.net/profile/Phil-Ammirato/publication/308320592/figure/fig1/AS:408230695063552@1474341191358/Two-stage-vs-Proposed-a-The-two-stage-approach-separates-the-detection-and-pose.png)](https://www.researchgate.net/profile/Phil-Ammirato/publication/308320592/figure/fig1/AS:408230695063552@1474341191358/Two-stage-vs-Proposed-a-The-two-stage-approach-separates-the-detection-and-pose.png)
+(画像：[https://www.researchgate.net/figure/Two-stage-vs-Proposed-a-The-two-stage-approach-separates-the-detection-and-pose_fig1_308320592](https://www.researchgate.net/figure/Two-stage-vs-Proposed-a-The-two-stage-approach-separates-the-detection-and-pose_fig1_308320592))
 
 # BERT
 
 # DCGAN
+
+---
 
 # 実装演習
 
