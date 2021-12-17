@@ -551,6 +551,8 @@ NNではなく線形の方策関数
 
 # 物体検出とSS解説
 
+SS: Semantic Segmentation  
+
 ## Introduction
 
 [![intro](https://data-analysis-stats.jp/wp-content/uploads/2020/07/10_object_detection_classifcation_segmentation.png)](https://data-analysis-stats.jp/wp-content/uploads/2020/07/10_object_detection_classifcation_segmentation.png)  
@@ -684,7 +686,7 @@ $$
 [![inference time](https://assets.st-note.com/production/uploads/images/9307533/picture_pc_23d39b7e4350ce52d5754a269a018d19.png?width=800)](https://assets.st-note.com/production/uploads/images/9307533/picture_pc_23d39b7e4350ce52d5754a269a018d19.png?width=800)  
 (画像：[https://note.com/seishin55/n/n542b2b682721](https://note.com/seishin55/n/n542b2b682721))  
 
-## マイルストーン
+### マイルストーン
 
 + 2012
     + AlexNetの登場→時代はSIFTからDCNNへ
@@ -738,6 +740,62 @@ Neural Networks](https://proceedings.neurips.cc/paper/2012/file/c399862d3b9d6b76
 
 [![example](https://www.researchgate.net/profile/Phil-Ammirato/publication/308320592/figure/fig1/AS:408230695063552@1474341191358/Two-stage-vs-Proposed-a-The-two-stage-approach-separates-the-detection-and-pose.png)](https://www.researchgate.net/profile/Phil-Ammirato/publication/308320592/figure/fig1/AS:408230695063552@1474341191358/Two-stage-vs-Proposed-a-The-two-stage-approach-separates-the-detection-and-pose.png)
 (画像：[https://www.researchgate.net/figure/Two-stage-vs-Proposed-a-The-two-stage-approach-separates-the-detection-and-pose_fig1_308320592](https://www.researchgate.net/figure/Two-stage-vs-Proposed-a-The-two-stage-approach-separates-the-detection-and-pose_fig1_308320592))
+
+### SSD: Single Shot Detector
+
+1. Default BOXを用意
+    + 適当に一つBoxを用意する
+1. Default BOXを変形し、conf.を出力
+
+VGG16がベースになっている  
+
+[![VGG16](https://ichi.pro/assets/images/max/724/0*xurYLT8UBpFKPNQA)](https://ichi.pro/assets/images/max/724/0*xurYLT8UBpFKPNQA)  
+(画像：[https://ichi.pro/vgg-16-to-wa-nani-desu-ka-vgg-16-no-gaiyo-267001881294357](https://ichi.pro/vgg-16-to-wa-nani-desu-ka-vgg-16-no-gaiyo-267001881294357))  
+
++ 16: convolution + ReLU 13層 + fully connected + ReLU 3層
++ 原著論文：[VERY DEEP CONVOLUTIONAL NETWORKS
+FOR LARGE-SCALE IMAGE RECOGNITION](https://arxiv.org/pdf/1409.1556.pdf)  
+
+SSDのネットワークアーキテクチャ  
+
+[![SSD](https://blog.negativemind.com/wp-content/uploads/2019/02/SSD_network.jpg)](https://blog.negativemind.com/wp-content/uploads/2019/02/SSD_network.jpg)  
+(画像：[https://blog.negativemind.com/2019/02/26/general-object-recognition-single-shot-multibox-detector/](https://blog.negativemind.com/2019/02/26/general-object-recognition-single-shot-multibox-detector/))  
+
+特徴
+
++ 入力サイズ: SSD300
++ VGGのFC層2層をConv層に変更
+    + VGG16の最後のFC層は削除
++ マルチスケール特徴マップ
+    + 解像度の異なる特徴マップから出力をつくる
+
+特徴マップからの出力  
+
++ マップ中の一つの特徴量における一つのDefault BOXについて
+    + 出力サイズ：クラス数 + 4
+        + オフセット項が4つ ($\Delta x, \Delta y, \Delta w, \Delta h$)
+            + $x = x_0 + 0.1 \times \Delta x \times w_0$
+            + $y = y_0 + 0.1 \times \Delta y \times h_0$
+            + $w = w_0 \times \exp (0.2 \times \Delta w)$
+            + $h = h_0 \times \exp (0.2 \times \Delta h)$
++ マップ中の各特徴量にk個のDefault BOXを用意するとき、
+    + 出力サイズ：k(クラス数 + 4)
++ 特徴マップのサイズがmxnであるとすれば、
+    + 出力サイズ：k(クラス数 + 4) mn
+        + k, mn: 特徴マップごとに用意するDefault BOX数
++ VOCデータセットでのデフォルトボックス数を考える
+    + クラス数20 + 背景クラス → #Class = 21
+    + 以下の層について、Default Boxは各特徴に4つ  
+        + Conv4_3
+        + Conv10_2
+        + Conv11_2
+        + {4 * (21 + 4) * 38 * 38} + {4 * (21 + 4) * 3 * 3} + {4 * (21 + 4) * 1 * 1}
+    + 以下の層について、Default Boxは各特徴に6つ
+        + Conv7
+        + Conv6_2
+        + Conv9_2
+        + {6 * (21 + 4) * 19 * 19} + {6 * (21 + 4) * 10 * 10} + {6 * (21 + 4) * 5 * 5}
+    + 合計: 8732 * (21 + 4)
 
 # BERT
 
