@@ -613,6 +613,8 @@ cf: 混同行列
 
 #### IoU: Intersection over Union
 
+別名: **Jaccard係数**  
+
 物体検出においてはクラスラベルだけでなく、物体位置の予想精度も評価したい  
 
 [![IoU](https://qiita-user-contents.imgix.net/https%3A%2F%2Fqiita-image-store.s3.amazonaws.com%2F0%2F199265%2F54b47877-9a97-5dbc-f461-b9cf832faefe.png?ixlib=rb-4.0.0&auto=format&gif-q=60&q=75&w=1400&fit=max&s=79ea20fa54664ed839953b4bcb672889)](https://qiita-user-contents.imgix.net/https%3A%2F%2Fqiita-image-store.s3.amazonaws.com%2F0%2F199265%2F54b47877-9a97-5dbc-f461-b9cf832faefe.png?ixlib=rb-4.0.0&auto=format&gif-q=60&q=75&w=1400&fit=max&s=79ea20fa54664ed839953b4bcb672889)  
@@ -630,8 +632,6 @@ $$
 
 [![Confusion Matrix & IoU](https://ml.1book.info/cv/example_of_confusion_matrix_2_4.jpg)](https://ml.1book.info/cv/example_of_confusion_matrix_2_4.jpg)  
 (画像：[https://ml.1book.info/cv/example_of_confusion_matrix_2.html](https://ml.1book.info/cv/example_of_confusion_matrix_2.html))  
-
-別名: **Jaccard係数**
 
 【入力1枚で見るPrecision/Recall】  
 
@@ -674,7 +674,7 @@ $$
     \mathrm{mAPcoco} = \frac{\mathrm{mAP}_{0.5} + \mathrm{mAP}_{0.55} + \cdots + \mathrm{mAP}_{0.95}}{10}
 $$
 
-### FPS
+#### FPS
 
 **Flames per Second**：検出速度  
 
@@ -741,7 +741,7 @@ Neural Networks](https://proceedings.neurips.cc/paper/2012/file/c399862d3b9d6b76
 [![example](https://www.researchgate.net/profile/Phil-Ammirato/publication/308320592/figure/fig1/AS:408230695063552@1474341191358/Two-stage-vs-Proposed-a-The-two-stage-approach-separates-the-detection-and-pose.png)](https://www.researchgate.net/profile/Phil-Ammirato/publication/308320592/figure/fig1/AS:408230695063552@1474341191358/Two-stage-vs-Proposed-a-The-two-stage-approach-separates-the-detection-and-pose.png)
 (画像：[https://www.researchgate.net/figure/Two-stage-vs-Proposed-a-The-two-stage-approach-separates-the-detection-and-pose_fig1_308320592](https://www.researchgate.net/figure/Two-stage-vs-Proposed-a-The-two-stage-approach-separates-the-detection-and-pose_fig1_308320592))
 
-### SSD: Single Shot Detector
+#### SSD: Single Shot Detector
 
 1. Default BOXを用意
     + 適当に一つBoxを用意する
@@ -756,12 +756,12 @@ VGG16がベースになっている
 + 原著論文：[VERY DEEP CONVOLUTIONAL NETWORKS
 FOR LARGE-SCALE IMAGE RECOGNITION](https://arxiv.org/pdf/1409.1556.pdf)  
 
-SSDのネットワークアーキテクチャ  
+【ネットワークアーキテクチャ】  
 
 [![SSD](https://blog.negativemind.com/wp-content/uploads/2019/02/SSD_network.jpg)](https://blog.negativemind.com/wp-content/uploads/2019/02/SSD_network.jpg)  
 (画像：[https://blog.negativemind.com/2019/02/26/general-object-recognition-single-shot-multibox-detector/](https://blog.negativemind.com/2019/02/26/general-object-recognition-single-shot-multibox-detector/))  
 
-特徴
+【特徴】
 
 + 入力サイズ: SSD300
 + VGGのFC層2層をConv層に変更
@@ -769,7 +769,7 @@ SSDのネットワークアーキテクチャ
 + マルチスケール特徴マップ
     + 解像度の異なる特徴マップから出力をつくる
 
-特徴マップからの出力  
+【特徴マップからの出力】  
 
 + マップ中の一つの特徴量における一つのDefault BOXについて
     + 出力サイズ：クラス数 + 4
@@ -799,7 +799,7 @@ SSDのネットワークアーキテクチャ
 
 注意：画像の物理的なサイズ≠解像度  
 
-多数のDefault Boxを用意したことで発生する問題  
+【多数のDefault Boxを用意したことで発生する問題】  
 
 + Non-Maximum Suppression
     + 一つの物体に複数のBounding Box
@@ -811,7 +811,7 @@ SSDのネットワークアーキテクチャ
         + 背景クラスの方が圧倒的に多い
     + 対策：Negative : Positive = 3 : 1までになるようにする
 
-損失関数  
+【損失関数】  
 
 $$
     L(x, c, l, g) = \frac{1}{N}(\underbrace{L_{conf}(x, c)}_{*1} + \alpha \underbrace{L_{loc}(x, l, g)}_{*2})
@@ -835,7 +835,7 @@ $$
 
 *3: Faster RCNNでも用いられる Smooth L1 Loss  
 
-SSDの進化  
+【SSDの進化】  
 
 + [SSD: Single Shot MultiBox Detector](https://arxiv.org/abs/1512.02325)
 + [DSSD: Deconvolutional Single Shot Detector](https://arxiv.org/abs/1701.06659)
@@ -846,38 +846,43 @@ SSDの進化
 
 ### 概略
 
+【Semantic Segmentationの肝】  
+
 [![FCN](https://cvml-expertguide.net/wp-content/uploads/2021/06/FCN-1536x797.png)](https://cvml-expertguide.net/wp-content/uploads/2021/06/FCN-1536x797.png)  
 (画像：[https://cvml-expertguide.net/2021/06/13/fcn/](https://cvml-expertguide.net/2021/06/13/fcn/))  
 
 + 課題
     + Up-Samplingの壁：Convolution + Poolingで落ちた解像度をどう元に戻すのか？
 + そもそも、Poolingは必要？
-    + 受容野を広げるために必要
+    + →受容野を広げるために必要！
 
-FCNの基本アイディア  
+【FCNの基本アイディア】  
 
 [![FCN](https://blog.negativemind.com/wp-content/uploads/2019/03/output_heatmap.jpg)](https://blog.negativemind.com/wp-content/uploads/2019/03/output_heatmap.jpg)  
 (画像：[https://blog.negativemind.com/2019/03/11/semantic-segmentation-by-fully-convolutional-network/](https://blog.negativemind.com/2019/03/11/semantic-segmentation-by-fully-convolutional-network/))  
 
-+ Fully Connected層をConcolutionに変更
++ Fully Connected層をConvolution層に変更
 + 出力がheatmapになる
 
 ### Up-sampling
 
 #### Deconvolution / Transposed Convolution  
 
-→Up-Samplingの手法  
-
 [![Deconvolution](https://qiita-user-contents.imgix.net/https%3A%2F%2Fqiita-image-store.s3.amazonaws.com%2F0%2F103085%2F20e0e845-f631-1995-d85e-bc39f69ae9f8.gif?ixlib=rb-4.0.0&auto=format&gif-q=60&q=75&w=1400&fit=max&s=c9a27c7311724d91b0ea801b58efdcf6)](https://qiita-user-contents.imgix.net/https%3A%2F%2Fqiita-image-store.s3.amazonaws.com%2F0%2F103085%2F20e0e845-f631-1995-d85e-bc39f69ae9f8.gif?ixlib=rb-4.0.0&auto=format&gif-q=60&q=75&w=1400&fit=max&s=c9a27c7311724d91b0ea801b58efdcf6)  
-(画像：[https://qiita.com/shngt/items/9c86e69e16ce6d61a0c6](https://qiita.com/shngt/items/9c86e69e16ce6d61a0c6))
+(画像：[https://qiita.com/shngt/items/9c86e69e16ce6d61a0c6](https://qiita.com/shngt/items/9c86e69e16ce6d61a0c6))  
 
-処理手順：
++ 逆畳み込みとも呼ばれる
+    + ただし、畳み込みの逆演算ではない
+
+【処理手順】  
 
 1. 特徴マップのpixel間隔をstrideだけ空ける
 1. 特徴マップの周りに(kernel size - 1) - paddingだけ余白をつくる
 1. 畳み込み演算を行う
 
-輪郭情報の補完  
+【輪郭情報の補完】  
+
+FCNはこのように用いられる  
 
 [![complement](https://blog.negativemind.com/wp-content/uploads/2019/03/upsampling.jpg)](https://blog.negativemind.com/wp-content/uploads/2019/03/upsampling.jpg)  
 (画像：[https://blog.negativemind.com/2019/03/11/semantic-segmentation-by-fully-convolutional-network/](https://blog.negativemind.com/2019/03/11/semantic-segmentation-by-fully-convolutional-network/))  
@@ -885,19 +890,19 @@ FCNの基本アイディア
 + 低レイヤーPooling層の出力をelement-wise addition  
     →ローカルな情報を補完してからUp-sampling
 
-U-Net  
+【U-Net】  
 
 [![U-Net](https://blog.negativemind.com/wp-content/uploads/2019/03/u-net-architecture-1.jpg)](https://blog.negativemind.com/wp-content/uploads/2019/03/u-net-architecture-1.jpg)  
 (画像：[https://blog.negativemind.com/2019/03/11/semantic-segmentation-by-fully-convolutional-network/](https://blog.negativemind.com/2019/03/11/semantic-segmentation-by-fully-convolutional-network/))  
 
 + element-wise additionではなく、チャネル方向の結合を行う
 
-(参考)DeconvNet  
+(参考)【DeconvNet】  
 
 [![DeconvNet](https://ichi.pro/assets/images/max/724/1*LW8Anre45o9nfamxIVTY8Q.png)](https://ichi.pro/assets/images/max/724/1*LW8Anre45o9nfamxIVTY8Q.png)  
 (画像：[https://ichi.pro/rebyu-deconvnet-anpu-ringureiya-semanthikku-segumente-shon-94349869070350](https://ichi.pro/rebyu-deconvnet-anpu-ringureiya-semanthikku-segumente-shon-94349869070350))  
 
-(参考)SegNet  
+(参考)【SegNet】  
 
 [![SegNet](https://cdn-ak.f.st-hatena.com/images/fotolife/m/mabonki0725/20170419/20170419074518.png)](https://cdn-ak.f.st-hatena.com/images/fotolife/m/mabonki0725/20170419/20170419074518.png)  
 (画像：[https://mabonki0725.hatenablog.com/entry/2017/04/19/113424](https://mabonki0725.hatenablog.com/entry/2017/04/19/113424))  
