@@ -789,13 +789,138 @@ SSDのネットワークアーキテクチャ
         + Conv4_3
         + Conv10_2
         + Conv11_2
-        + {4 * (21 + 4) * 38 * 38} + {4 * (21 + 4) * 3 * 3} + {4 * (21 + 4) * 1 * 1}
+        + →{4 * (21 + 4) * 38 * 38} + {4 * (21 + 4) * 3 * 3} + {4 * (21 + 4) * 1 * 1}
     + 以下の層について、Default Boxは各特徴に6つ
         + Conv7
         + Conv6_2
         + Conv9_2
-        + {6 * (21 + 4) * 19 * 19} + {6 * (21 + 4) * 10 * 10} + {6 * (21 + 4) * 5 * 5}
+        + →{6 * (21 + 4) * 19 * 19} + {6 * (21 + 4) * 10 * 10} + {6 * (21 + 4) * 5 * 5}
     + 合計: 8732 * (21 + 4)
+
+注意：画像の物理的なサイズ≠解像度  
+
+多数のDefault Boxを用意したことで発生する問題  
+
++ Non-Maximum Suppression
+    + 一つの物体に複数のBounding Box
+    + 対策：IoUの最も高いBounding Box以外は排除する
+        + IoUが0.3以上のものが対象
++ Hard Negative Mining
+    + Negative Class: 背景クラス
+    + 背景クラス(Negative Class)と他のクラス(Positive Class)の検出数の不均衡
+        + 背景クラスの方が圧倒的に多い
+    + 対策：Negative : Positive = 3 : 1までになるようにする
+
+損失関数  
+
+$$
+    L(x, c, l, g) = \frac{1}{N}(\underbrace{L_{conf}(x, c)}_{*1} + \alpha \underbrace{L_{loc}(x, l, g)}_{*2})
+$$
+
+*1: confidenceに対する損失  
+
+$$
+    L_{conf}(x, c) = - \sum_{i \in Pos}^{N} x^p_{ij} log (\hat{c}^p_i) - \sum_{i \in Neg} log (\hat{c}^0_i) \qquad \mathrm{where} \quad \hat{c}^p_i = \frac{\exp (c^p_i)}{\sum_p \exp (c^p_i)}
+$$
+
+*2: 位置検出に対する損失  
+
+$$
+    L_{loc}(x, l, g) = \sum_{i \in Pos}^{N} \sum_{m \in {cx, xy, w, h}} x^k_{ij} \underbrace{\mathrm{smooth}_{L1} (l^m_i - \hat{g}^m_j)}_{*3} \\  
+    \hat{g}^{cx}_j = (g^{cx}_j - d^{cx}_i) / d^w_i \qquad
+    \hat{g}^{cy}_j = (g^{cy}_j - d^{cy}_i) / d^h_i \\  
+    \hat{g}^w_j = \log \left( \frac{g^w_j}{d^w_i} \right) \qquad
+    \hat{g}^h_j = \log\left( \frac{g^h_j}{d^h_i} \right)
+$$
+
+*3: Faster RCNNでも用いられる Smooth L1 Loss  
+
+SSDの進化  
+
++ [SSD: Single Shot MultiBox Detector](https://arxiv.org/abs/1512.02325)
++ [DSSD: Deconvolutional Single Shot Detector](https://arxiv.org/abs/1701.06659)
++ [Extend the shallow part of Single Shot MultiBox Detector via Convolutional Neural Network](https://arxiv.org/abs/1801.05918)
++ [Single-Shot Refinement Neural Network for Object Detection](https://arxiv.org/abs/1711.06897)
+
+## Semantic Segmentation
+
+### 概略
+
+[![FCN](https://cvml-expertguide.net/wp-content/uploads/2021/06/FCN-1536x797.png)](https://cvml-expertguide.net/wp-content/uploads/2021/06/FCN-1536x797.png)  
+(画像：[https://cvml-expertguide.net/2021/06/13/fcn/](https://cvml-expertguide.net/2021/06/13/fcn/))  
+
++ 課題
+    + Up-Samplingの壁：Convolution + Poolingで落ちた解像度をどう元に戻すのか？
++ そもそも、Poolingは必要？
+    + 受容野を広げるために必要
+
+FCNの基本アイディア  
+
+[![FCN](https://blog.negativemind.com/wp-content/uploads/2019/03/output_heatmap.jpg)](https://blog.negativemind.com/wp-content/uploads/2019/03/output_heatmap.jpg)  
+(画像：[https://blog.negativemind.com/2019/03/11/semantic-segmentation-by-fully-convolutional-network/](https://blog.negativemind.com/2019/03/11/semantic-segmentation-by-fully-convolutional-network/))  
+
++ Fully Connected層をConcolutionに変更
++ 出力がheatmapになる
+
+### Up-sampling
+
+#### Deconvolution / Transposed Convolution  
+
+→Up-Samplingの手法  
+
+[![Deconvolution](https://qiita-user-contents.imgix.net/https%3A%2F%2Fqiita-image-store.s3.amazonaws.com%2F0%2F103085%2F20e0e845-f631-1995-d85e-bc39f69ae9f8.gif?ixlib=rb-4.0.0&auto=format&gif-q=60&q=75&w=1400&fit=max&s=c9a27c7311724d91b0ea801b58efdcf6)](https://qiita-user-contents.imgix.net/https%3A%2F%2Fqiita-image-store.s3.amazonaws.com%2F0%2F103085%2F20e0e845-f631-1995-d85e-bc39f69ae9f8.gif?ixlib=rb-4.0.0&auto=format&gif-q=60&q=75&w=1400&fit=max&s=c9a27c7311724d91b0ea801b58efdcf6)  
+(画像：[https://qiita.com/shngt/items/9c86e69e16ce6d61a0c6](https://qiita.com/shngt/items/9c86e69e16ce6d61a0c6))
+
+処理手順：
+
+1. 特徴マップのpixel間隔をstrideだけ空ける
+1. 特徴マップの周りに(kernel size - 1) - paddingだけ余白をつくる
+1. 畳み込み演算を行う
+
+輪郭情報の補完  
+
+[![complement](https://blog.negativemind.com/wp-content/uploads/2019/03/upsampling.jpg)](https://blog.negativemind.com/wp-content/uploads/2019/03/upsampling.jpg)  
+(画像：[https://blog.negativemind.com/2019/03/11/semantic-segmentation-by-fully-convolutional-network/](https://blog.negativemind.com/2019/03/11/semantic-segmentation-by-fully-convolutional-network/))  
+
++ 低レイヤーPooling層の出力をelement-wise addition  
+    →ローカルな情報を補完してからUp-sampling
+
+U-Net  
+
+[![U-Net](https://blog.negativemind.com/wp-content/uploads/2019/03/u-net-architecture-1.jpg)](https://blog.negativemind.com/wp-content/uploads/2019/03/u-net-architecture-1.jpg)  
+(画像：[https://blog.negativemind.com/2019/03/11/semantic-segmentation-by-fully-convolutional-network/](https://blog.negativemind.com/2019/03/11/semantic-segmentation-by-fully-convolutional-network/))  
+
++ element-wise additionではなく、チャネル方向の結合を行う
+
+(参考)DeconvNet  
+
+[![DeconvNet](https://ichi.pro/assets/images/max/724/1*LW8Anre45o9nfamxIVTY8Q.png)](https://ichi.pro/assets/images/max/724/1*LW8Anre45o9nfamxIVTY8Q.png)  
+(画像：[https://ichi.pro/rebyu-deconvnet-anpu-ringureiya-semanthikku-segumente-shon-94349869070350](https://ichi.pro/rebyu-deconvnet-anpu-ringureiya-semanthikku-segumente-shon-94349869070350))  
+
+(参考)SegNet  
+
+[![SegNet](https://cdn-ak.f.st-hatena.com/images/fotolife/m/mabonki0725/20170419/20170419074518.png)](https://cdn-ak.f.st-hatena.com/images/fotolife/m/mabonki0725/20170419/20170419074518.png)  
+(画像：[https://mabonki0725.hatenablog.com/entry/2017/04/19/113424](https://mabonki0725.hatenablog.com/entry/2017/04/19/113424))  
+
+#### Unpooling  
+
+[![Unpooling1](https://ichi.pro/assets/images/max/724/1*8RHLqbd2UJshkoDfZMdOmg.png)](https://ichi.pro/assets/images/max/724/1*8RHLqbd2UJshkoDfZMdOmg.png)  
+[![Unpooling2](https://ichi.pro/assets/images/max/724/1*AbCrAqPBfkqGRdhKtiZQqA.png)](https://ichi.pro/assets/images/max/724/1*AbCrAqPBfkqGRdhKtiZQqA.png)  
+(画像：[https://ichi.pro/rebyu-deconvnet-anpu-ringureiya-semanthikku-segumente-shon-94349869070350](https://ichi.pro/rebyu-deconvnet-anpu-ringureiya-semanthikku-segumente-shon-94349869070350))  
+
++ Poolingした時の位置情報を保持
+
+### Dilated Convolution
+
+[![Dilated Convolution](https://miro.medium.com/max/790/0*3cTXIemm0k3Sbask.gif)](https://miro.medium.com/max/790/0*3cTXIemm0k3Sbask.gif)  
+[![Dilated Convolution2](https://miro.medium.com/max/1400/1*tnDNIyPePgHvb8JIx8SbqA.png)](https://miro.medium.com/max/1400/1*tnDNIyPePgHvb8JIx8SbqA.png)  
+(画像：[https://towardsdatascience.com/review-dilated-convolution-semantic-segmentation-9d5a5bd768f5?gi=ccef31e3dad2](https://towardsdatascience.com/review-dilated-convolution-semantic-segmentation-9d5a5bd768f5?gi=ccef31e3dad2))  
+
++ Poolingを用いず、Convolutionの段階で受容野を広げる工夫  
++ 上記の例では、
+    + 3x3 Conv. → 3x3(rate=2)Conv. → 3x3(rate=4)Conv.
+    + 最終的に3層で15 x 15の範囲をカバーできている
+        + (同範囲で3x3のConv.を続けた場合、7層必要)
 
 # BERT
 
