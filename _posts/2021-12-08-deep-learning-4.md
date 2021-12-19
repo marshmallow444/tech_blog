@@ -929,6 +929,234 @@ FCNはこのように用いられる
 
 # BERT
 
+## Seq2Seq
+
++ 系列を入力し、系列を出力
++ Encoder-Decoderモデルとも呼ばれる
++ 入力系列→(Encode)→内部状態→(Decode)→出力系列
++ 実用例
+    + 翻訳(英→日)
+    + 音声認識(波形→テキスト)
+    + チャットボット(テキスト→テキスト)
+
+【理解に必要な材料】  
+
++ RNNの理解
++ 言語モデルの理解
+
+### 言語モデル  
+
++ 単語の並びに確率を与える
+    + 尤度 ←文章として自然かを評価
++ 数式的には同時確率を事後確率に分解して表せる
+
+$$
+    P(w_1, \cdots, w_m) = \prod_{i=1}^{m} P(w_i | w_1, \cdots, w_{i-1})
+$$
+
++ 時刻t-1までの情報で、時刻tの事後確率を求めることが目標
+    →これで同時確率が計算できる
+
+$$
+    \underbrace{ \underset{w \in V}{\mathrm{argmax}}}_{*1} P( \mathrm{I, have, a,} \underbrace{w}_{dog, \space pen, \cdots})
+$$
+
+*1: Set of all words in the vocabulary
+
+【RNN x 言語モデル】  
+
+[![RNN x Lang model](https://cdn-ak.f.st-hatena.com/images/fotolife/t/taxa_program/20190108/20190108000309.png)](https://cdn-ak.f.st-hatena.com/images/fotolife/t/taxa_program/20190108/20190108000309.png)  
+(画像：[https://www.takapy.work/entry/2019/01/09/080338](https://www.takapy.work/entry/2019/01/09/080338))  
+
++ 言語モデルを再現するようにRNNの重みが学習されていれば、ある時点の次の単語を予測することが可能
+    + 先頭単語を与えれば文章も生成できる
++ 初期値は適当(0, 乱数など)
+
+### Seq2Seq  
+
++ EncoderからDecoderへ渡される内部状態ベクトルが鍵
++ Decoder側の構造は言語モデルRNNとほぼ同じ
+    + 隠れ状態の初期値にEncoder側の内部状態を受け取る
++ DecoderのOutput側に正解を当てれば、教師あり学習がEnd2Endで行える
+    + Lossを計算可能→誤差逆伝播可能→重みの更新ができる
+
+[![Seq2Seq](https://miro.medium.com/max/1400/1*x4wsJobiSC7zlTkP8yv40A.png)](https://miro.medium.com/max/1400/1*x4wsJobiSC7zlTkP8yv40A.png)  
+(画像：[https://medium.com/analytics-vidhya/seq2seq-model-and-the-exposure-bias-problem-962bb5607097](https://medium.com/analytics-vidhya/seq2seq-model-and-the-exposure-bias-problem-962bb5607097))  
+
+【Teacher Forcing】  
+
++ 正解ラベルを直接Decoderの入力にする
++ RNNでDecoderを学習させると連鎖的に誤差が大きくなっていき、学習が不安定になったり収束が遅くなったりする問題の対策
++ 学習時と予測時で出力を行う環境が異なる問題がある
+    + 予測時には教師データがない
+    + Scheduled Samplingで対策する
+        + ターゲット系列を入力とするか生成された結果を入力とするかを確率的にサンプリングする
+
+【BLEU】  
+
++ プロの翻訳結果に対し、モデルの出力結果をスコア化する
+    + 翻訳精度を相対的に測れる
+
+## Transformer
+
+【ニューラル機械翻訳の問題点】  
+
++ 長さに弱い
+    + 翻訳元の文の内容を一つのベクトルで表現
+        + 文が長くなると表現力が足りなくなる
+
+### Attention (注意機構)
+
++ 辞書オブジェクト
+    + queryに一致するkeyを索引
+    + 対応するvalueを取り出す
+        + 正規化された尤度を利用
++ 翻訳先の各単語を選択する際に、翻訳元の文中の各単語の隠れ状態を利用
+
+[![Attention](https://cdn-ak.f.st-hatena.com/images/fotolife/h/hilinker/20181121/20181121195334.png)](https://cdn-ak.f.st-hatena.com/images/fotolife/h/hilinker/20181121/20181121195334.png)  
+(画像：[https://hilinker.hatenablog.com/entry/2018/12/08/002003](https://hilinker.hatenablog.com/entry/2018/12/08/002003))  
+
+【翻訳元の各単語の隠れ状態の加重平均】  
+
+$$
+    c_i = \sum_{j=1}^{T_x} \alpha_{ij} h_j \cdot
+$$
+
+【重み】  
+
++ 全て足すと1
++ FFNNで求める
+
+$$
+    \begin{split}
+        \alpha_{ij} &= \frac{\exp (e_{ij})}{\sum_{k=1}^{T_x} \exp (e_{ik})}, \\  
+        e_{ij} &= a(s_{i-1}, h_j)
+    \end{split}
+$$
+
+【2種類のAttention】  
+
+$$
+    \mathrm{softmax}(QK^T)V
+$$
+
+[![2 Attentions](https://cdn-ak.f.st-hatena.com/images/fotolife/R/Ryobot/20171221/20171221164314.png)](https://cdn-ak.f.st-hatena.com/images/fotolife/R/Ryobot/20171221/20171221164314.png)  
+(画像：[https://forest1040.growi.cloud/nmt/attention](https://forest1040.growi.cloud/nmt/attention))  
+
++ Source Target Attention
+    + 情報が来る場所と情報が狙う場所が別れている
+    + 受け取った情報に対して狙う情報が近いものをAttentionベクトルとして取り出し注目
++ Self Attention
+    + Q, K, Vが全て同じところから来る
+    + どの情報に注目すべきか、自分の入力だけで決める
+    [![Self Attention](https://camo.qiitausercontent.com/c0357c70af7308f9be5bb30ad4e69fa2f7a00629/68747470733a2f2f71696974612d696d6167652d73746f72652e73332e616d617a6f6e6177732e636f6d2f302f3132333538392f37353566343237302d336331302d653134612d343033362d3561626639306565663137312e706e67)](https://camo.qiitausercontent.com/c0357c70af7308f9be5bb30ad4e69fa2f7a00629/68747470733a2f2f71696974612d696d6167652d73746f72652e73332e616d617a6f6e6177732e636f6d2f302f3132333538392f37353566343237302d336331302d653134612d343033362d3561626639306565663137312e706e67)  
+    (画像：[https://seiichiinoue.github.io/post/nlp/](https://seiichiinoue.github.io/post/nlp/))  
+    + CNNと似ている。文脈依存
+        + 文脈を反映した自己表現を得られる
+        + 違い：
+            + CNN：ウインドウサイズのため、決められた範囲内のconvolutionしか行わない
+            + Self Attention：ウインドウサイズが文の長さのconvolution
+
+【Position-Wise Feed-Forward Networks】  
+
++ 位置情報を保持したまま順伝播させる
++ 各Attention層の出力を決定
+    + 2層の全結合NN
+    + 線形変換→ReLU→線形変換
+
+$$
+    \mathrm{FFN}(x) = \max (0, x W_1 + b_1) W_2 + b_2 \\  
+    W_1 \in \mathbb{R}^{512 \times 2048} \qquad b_1 \in \mathbb{R}^{2048} \\  
+    W_2 \in \mathbb{R}^{2048 \times 512} \qquad b_2 \in \mathbb{R}^{512}
+$$
+
+【Scaled dot product attention】  
+
+全単語に関するAttentionをまとめて計算する  
+
+[![Scaled dot product attension](https://qiita-user-contents.imgix.net/https%3A%2F%2Fqiita-image-store.s3.ap-northeast-1.amazonaws.com%2F0%2F209705%2F144a439c-1381-3b41-8318-3259a5015ded.png?ixlib=rb-4.0.0&auto=format&gif-q=60&q=75&w=1400&fit=max&s=95240c3f24b3cf93062588ea4177ca95)](https://qiita-user-contents.imgix.net/https%3A%2F%2Fqiita-image-store.s3.ap-northeast-1.amazonaws.com%2F0%2F209705%2F144a439c-1381-3b41-8318-3259a5015ded.png?ixlib=rb-4.0.0&auto=format&gif-q=60&q=75&w=1400&fit=max&s=95240c3f24b3cf93062588ea4177ca95)  
+(画像：[https://qiita.com/jun40vn/items/9135bf982d73d9372238](https://qiita.com/jun40vn/items/9135bf982d73d9372238))  
+
++ $d_k$ : 内部状態の次元数  
+    →積の演算が大きくなっていくのを防ぐため、スケーリングしている  
++ Mask: UNK、PADなどをカットしたい場合に使う
+
+$$
+    \underbrace{
+        \left[
+            \begin{array}{c}
+                & q_1 & \\  
+                & q_2 & \\  
+                & q_3 &
+            \end{array}
+        \right]
+    }_{Q}
+    \underbrace{
+        \left[
+            \begin{array}{c}
+                \space \\  
+                k_1 & k_2 & k_3 \\  
+                \space
+            \end{array}
+        \right]
+    }_{K} = 
+    \left[
+        \begin{array}{c}
+            q_1 \cdot k_1 & q_1 \cdot k_2 & q_1 \cdot k_3 \\  
+            q_2 \cdot k_1 & q_2 \cdot k_2 & q_2 \cdot k_3 \\  
+            q_3 \cdot k_1 & q_3 \cdot k_2 & q_3 \cdot k_3
+        \end{array}
+    \right] \\  
+    \underbrace{
+        \left[
+            \begin{array}{c}
+                0.1 & 0.2 & 0.7 \\  
+                0.4 & 0.3 & 0.3 \\  
+                0.8 & 0.1 & 0.1
+            \end{array}
+        \right]
+    }_{\mathrm{softmax}(QK)}
+    \underbrace{
+        \left[
+            \begin{array}{c}
+                & v_1 & \\  
+                & v_2 & \\  
+                & v_3 &
+            \end{array}
+        \right]
+    }_{V} = 
+    \left[
+        \begin{array}{c}
+            0.1 v_1 + 0.2 v_1 + 0.7 v_1 \\  
+            0.4 v_2 + 0.3 v_2 + 0.3 v_2 \\  
+            0.7 v_3 + 0.1 v_3 + 0.1 v_3 
+        \end{array}
+    \right] \\  
+$$
+
+### Transformer
+
+[![Transformer](https://cdn-ak.f.st-hatena.com/images/fotolife/R/Ryobot/20171221/20171221163853.png)](https://cdn-ak.f.st-hatena.com/images/fotolife/R/Ryobot/20171221/20171221163853.png)  
+(画像：[https://deeplearning.hatenablog.com/entry/transformer](https://deeplearning.hatenablog.com/entry/transformer))  
+
++ 2017年6月に登場
++ RNNを使わない
+    + 必要なのはAttentionだけ
++ 当時のSOTAを、はるかに少ない計算量で実現
+    + SOTA(State of the Art): もっとも高精度であること
++ 英仏(3600万文)の学習を8GPUで3.5日で完了
+
+【主要モジュール】  
+
+1. Positional Encoding
+    + 単語ベクトルに単語の位置を追加
+1. Multi-Head Attention
+    + 複数のヘッドで行うDot Product Attention
+1. Feed Forward
+    + 単語の位置ごとに独立処理する全結合
+1. Masked Multi-Head Attention
+    + 未来の単語を見ないようマスク
+
 # DCGAN
 
 ---
@@ -1209,3 +1437,81 @@ FCNはこのように用いられる
                         optimizer=Adam(lr=0.001, beta_1=0.9, beta_2=0.999, epsilon=keras.backend.epsilon(), decay=0.0, amsgrad=False), 
                         metrics=['accuracy'])
             ```
+
+## lecture_chap1_exercise_public.ipynb
+
+実行結果
+
+### 1. データセットの準備
+
+#### 1.1データの読み込みと単語の分割
+
+![1.1.1]({{site.baseurl}}/images/20211219.png)  
+
+![1.1.2]({{site.baseurl}}/images/20211219_1.png)  
+
+![1.1.3]({{site.baseurl}}/images/20211219_2.png)  
+
+#### 1.2単語辞書の作成
+
+![1.2.1]({{site.baseurl}}/images/20211219_3.png)  
+
+### 2.テンソルへの変換
+
+#### 2.1 IDへの変換
+
+![2.1.1]({{site.baseurl}}/images/20211219_4.png)  
+
+### 3.モデルの構築
+
+#### 導入：PackedSequence
+
+![3.0.1]({{site.baseurl}}/images/20211219_5.png)  
+
+![3.0.2]({{site.baseurl}}/images/20211219_6.png)  
+
+![3.0.3]({{site.baseurl}}/images/20211219_7.png)  
+
+### 4.訓練
+
+#### 4.2学習
+
+![4.2.1]({{site.baseurl}}/images/20211219_8.png)  
+![4.2.2]({{site.baseurl}}/images/20211219_9.png)  
+![4.2.3]({{site.baseurl}}/images/20211219_10.png)  
+
+### 5.評価
+
+![5.1.1]({{site.baseurl}}/images/20211219_11.png)  
+
+![5.1.2]({{site.baseurl}}/images/20211219_12.png)  
+
+![5.1.2]({{site.baseurl}}/images/20211219_13.png)  
+
+### Beam Search
+
+![6.1.1]({{site.baseurl}}/images/20211219_14.png)  
+
+![6.1.2]({{site.baseurl}}/images/20211219_15.png)  
+![6.1.3]({{site.baseurl}}/images/20211219_16.png)  
+
+(メモ)  
+
++ 実行時にエラーが発生して止まってしまう  
+    + エラー発生箇所：セル[1] L.2
+        ```Python
+        from wheel.pep425tags import get_abbr_impl, get_impl_ver, get_abi_tag
+        ```  
+    + エラー内容：
+        ```
+        `Colab - ModuleNotFoundError: No module named 'wheel.pep425tags'
+        ```  
+    + 対策：事前に以下を実行しておく  
+        ```Python
+        !pip3 install wheel==0.34.1
+        ```
+    + 備考：まだ以下のエラーが出るが、一応動くようになったのでとりあえず様子見
+        ```Python
+        ERROR: HTTP error 403 while getting http://download.pytorch.org/whl/cu80/torch-0.4.0-cp37-cp37m-linux_x86_64.whl
+        ERROR: Could not install requirement torch==0.4.0 from http://download.pytorch.org/whl/cu80/torch-0.4.0-cp37-cp37m-linux_x86_64.whl because of HTTP error 403 Client Error: Forbidden for url: http://download.pytorch.org/whl/cu80/torch-0.4.0-cp37-cp37m-linux_x86_64.whl for URL http://download.pytorch.org/whl/cu80/torch-0.4.0-cp37-cp37m-linux_x86_64.whl
+        ```
