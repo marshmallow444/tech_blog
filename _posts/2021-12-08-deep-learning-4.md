@@ -1034,6 +1034,29 @@ $$
     \end{split}
 $$
 
+### Transformer
+
+[![Transformer](https://cdn-ak.f.st-hatena.com/images/fotolife/R/Ryobot/20171221/20171221163853.png)](https://cdn-ak.f.st-hatena.com/images/fotolife/R/Ryobot/20171221/20171221163853.png)  
+(画像：[https://deeplearning.hatenablog.com/entry/transformer](https://deeplearning.hatenablog.com/entry/transformer))  
+
++ 2017年6月に登場
++ RNNを使わない
+    + 必要なのはAttentionだけ
++ 当時のSOTAを、はるかに少ない計算量で実現
+    + SOTA(State of the Art): もっとも高精度であること
++ 英仏(3600万文)の学習を8GPUで3.5日で完了
+
+【主要モジュール】  
+
+1. Positional Encoding
+    + 単語ベクトルに単語の位置を追加
+1. Multi-Head Attention
+    + 複数のヘッドで行うDot Product Attention
+1. Feed Forward
+    + 単語の位置ごとに独立処理する全結合
+1. Masked Multi-Head Attention
+    + 未来の単語を見ないようマスク
+
 【2種類のAttention】  
 
 $$
@@ -1134,30 +1157,304 @@ $$
     \right] \\  
 $$
 
-### Transformer
+【Multi-Head attention】  
 
-[![Transformer](https://cdn-ak.f.st-hatena.com/images/fotolife/R/Ryobot/20171221/20171221163853.png)](https://cdn-ak.f.st-hatena.com/images/fotolife/R/Ryobot/20171221/20171221163853.png)  
-(画像：[https://deeplearning.hatenablog.com/entry/transformer](https://deeplearning.hatenablog.com/entry/transformer))  
+[![Multi-Head attention](https://production-media.paperswithcode.com/methods/multi-head-attention_l1A3G7a.png)](https://production-media.paperswithcode.com/methods/multi-head-attention_l1A3G7a.png)  
+(画像：[https://paperswithcode.com/method/multi-head-attention](https://paperswithcode.com/method/multi-head-attention))  
 
-+ 2017年6月に登場
-+ RNNを使わない
-    + 必要なのはAttentionだけ
-+ 当時のSOTAを、はるかに少ない計算量で実現
-    + SOTA(State of the Art): もっとも高精度であること
-+ 英仏(3600万文)の学習を8GPUで3.5日で完了
++ 重みパラメタの異なる8個のヘッドを使用
++ 8個のScaled Dot-Product Attentionの出力をConcat
++ それぞれのヘッドが異なる種類の情報を収集
 
-【主要モジュール】  
+【Decoder】  
 
-1. Positional Encoding
-    + 単語ベクトルに単語の位置を追加
-1. Multi-Head Attention
-    + 複数のヘッドで行うDot Product Attention
-1. Feed Forward
-    + 単語の位置ごとに独立処理する全結合
-1. Masked Multi-Head Attention
-    + 未来の単語を見ないようマスク
++ Encoderと同じく6層
+    + 各層で2種類の注意機構
+    + 注意機構の仕組みはEncoderとほぼ同じ
++ 自己注意機構
+    + 生成単語列の情報を収集
+        + 直下の層の出力へのアテンション
+    + 未来の情報を見ないようマスク
++ Encoder-Decoder attention
+    + 入力文の情報を収集
+    + Encoderの出力へのアテンション
+
+【Add & Norm】  
+
++ Add
+    + 入出力の差分を学習させる
+    + 実装上は出力に入力をそのまま加算するだけ
+    + 効果：学習・テストエラーの低減
++ Norm
+    + 各層においてバイアスを除く活性化関数への入力を 平均0, 分散1に正則化
+    + 効果；学習の高速化
+
+【Position Encoding】  
+
++ 単語列の語順情報を追加する必要がある
+    + RNNを用いないため
++ 単語の位置情報をエンコード
+
+$$
+    PE_{(pos, 2i)} = \sin 
+    \left(
+        \frac{pos}{10000^{2i / 512}}
+    \right) \\  
+    \space \\  
+    PE_{(pos, 2i+1)} = \cos 
+    \left(
+        \frac{pos}{10000^{2i / 512}}
+    \right) \\  
+$$
+
++ posの(ソフトな)2進数表現
++ 動作イメージ  
+    [![Position Encoding](https://jalammar.github.io/images/t/transformer_positional_encoding_example.png)](https://jalammar.github.io/images/t/transformer_positional_encoding_example.png)  
+    [![Position Encoding2](https://jalammar.github.io/images/t/transformer_positional_encoding_large_example.png)](https://jalammar.github.io/images/t/transformer_positional_encoding_large_example.png)
+    (画像：[https://jalammar.github.io/illustrated-transformer/#representing-the-order-of-the-sequence-using-positional-encoding](https://jalammar.github.io/illustrated-transformer/#representing-the-order-of-the-sequence-using-positional-encoding))  
+    + 左半分はsinによる生成
+    + 右半分はcosによる生成
+        + concatされる
+
+【Attentionの可視化】  
+
+注意状況を確認すると言語構造を捉えていることが多い  
+
+[![Attention](https://1.bp.blogspot.com/-AVGK0ApREtk/WaiAuzddKVI/AAAAAAAAB_A/WPV5ropBU-cxrcMpqJBFHg73K9NX4vywwCLcBGAs/s640/image2.png)](https://1.bp.blogspot.com/-AVGK0ApREtk/WaiAuzddKVI/AAAAAAAAB_A/WPV5ropBU-cxrcMpqJBFHg73K9NX4vywwCLcBGAs/s640/image2.png)  
+(画像：[https://ai.googleblog.com/2017/08/transformer-novel-neural-network.html](https://ai.googleblog.com/2017/08/transformer-novel-neural-network.html))  
 
 # DCGAN
+
+## GANについて
+
+### GANの構造
+
+【GANとは】  
+
++ Generative Adversarial Nets  
++ 生成器と識別器を競わせて学習する生成＆識別モデル  
+    + Generator: 乱数からデータを生成
+    + Discriminator: 入力データが真データであるかを識別
+
+[![GAN](https://blog.negativemind.com/wp-content/uploads/2019/06/gan.jpg)](https://blog.negativemind.com/wp-content/uploads/2019/06/gan.jpg)  
+(画像：[https://blog.negativemind.com/2019/06/22/generative-adversarial-networks/](https://blog.negativemind.com/2019/06/22/generative-adversarial-networks/))  
+
++ $z$: 乱数
++ $G$: Generator ←パラメータ$\theta_g$
++ $G(z)$: 生成データ
++ $x$: 真データ
++ $D$: Discriminator ←パラメータ$\theta_d$
++ Real or Fake: 入力が真である確率
+
+### ミニマックスゲームと価値関数
+
+【2プレイヤーのミニマックスゲーム】  
+
++ 一人が自分の勝利する確率を最大化する作戦
++ もう一人は相手が勝利する確率を最小化する作戦
++ 価値関数$V$に対し、
+    + $D$が最大化
+    + $G$が最小化
+    + ($\mathbb{E}$: 期待値)
+
+$$
+    \underset{G}{\min} \underset{D}{\max} V(D, G)
+$$
+
+$$
+    V(D, G) = \mathbb{E}_{x \verb|~| p_{data}(x)}[\log D(x)]
+    + \mathbb{E}_{x \verb|~|p_z(z)} \Bigl[\log \Bigl(1-D \bigl( G(z) \bigr) \Bigr) \Bigr] \\  
+$$
+
++ バイナリークロスエントロピーと似ている？
+
+$$
+    L = - \sum y \log \hat{y} + (1 - y) \log (1 - \hat{y})
+$$
+
+【GANの価値関数はバイナリークロスエントロピー】  
+
++ 単一データのバイナリークロスエントロピー
+
+$$
+    L = -y \log \hat{y} + (1 - y) \log (1 - \hat{y}) \\  
+    y : 真値(ラベル) \quad \hat{y} : 予測値(確率)
+$$
+
++ 真データを扱う時
+    + $y = 1, \hat{y} = D(x) \Rightarrow L = - \log [D(x)]$
++ 生成データを扱う時
+    + $y = 0, \hat{y} = D( G(z) ) \Rightarrow L = - \log [1 - D( G(z) )]$
++ 2つを足し合わせる
+
+$$
+    \begin{split}
+        &L = -(\log [D(x)] + \log [1 - D( G(z) )]) \\  
+        &V(D, G) = \mathbb{E}_{x \verb|~| p_{data}(x)}[\log D(x)]
+    + \mathbb{E}_{x \verb|~|p_z(z)} \Bigl[\log \Bigl(1-D \bigl( G(z) \bigr) \Bigr) \Bigr]
+    \end{split}
+$$
+
++ 複数データを扱うために期待値をとる
++ 期待値：何度も試行する際の平均的な結果値 $\sum xp(x)$
+
+### GANの最適化方法
+
+【Discriminatorのパラメータ更新】  
+
++ Generatorのパラメータ$\theta_g$を固定
+    + 真データと生成データを$m$個ずつサンプル
+    + $\theta_d$を勾配上昇法(Gradient Ascent)で更新
+        + 勾配**上昇法**を使う理由：Discriminatorは価値関数を最大化したいため
+
+$$
+    \frac{\partial}{\partial \theta_d} \frac{1}{m} [\log [D(x)] + \log [1 - D( G(z) )]]
+$$
+
+【Generatorのパラメータ更新】  
+
++ Discriminatorのパラメータ$\theta_d$を固定
+    + 生成データを$m$個ずつサンプル
+    + $\theta_g$を勾配降下法(Gradient Descent)で更新
+        + 勾配降下法を使う理由：Generatorは価値関数を最小化したいため
+
+$$
+    \frac{\partial}{\partial \theta_g} \frac{1}{m} [\log [1 - D( G(z) )]]
+$$
+
+$\theta_d$をk回更新、$\theta_g$を1回更新  
+このセットをくり返して学習を進める  
+
+### 本物のようなデータを生成できる理由
+
++ 生成データが本物とそっくりな状況
+    + $p_g = p_{data}$であるはず
++ 価値関数が$p_g = p_{data}$の時に最適化されていることを示せばよい
+
+$$
+    \underset{G}{\min} \underset{D}{\max} V(D, G) = \mathbb{E}_{x \verb|~| p_{data}(x)}[\log D(x)]
+    + \mathbb{E}_{x \verb|~|p_z(z)} \Bigl[\log \Bigl(1-D \bigl( G(z) \bigr) \Bigr) \Bigr]
+$$
+
++ ２つのステップにより確認する
+    1. $G$を固定し、価値関数が最大値をとるときの$D(x)$を算出
+    1. 上記の$D(x)$を価値関数に代入し、$G$が価値関数を最小化する条件を算出
+
+【Step1: 価値関数を最大化する$D(x)$の値】  
+
+Generatorを固定
+
+$$
+    \begin{align}
+        V(D, G) &= \mathbb{E}_{x \verb|~| p_{data}(x)}[\log D(x)]
+    + \mathbb{E}_{x \verb|~|p_z(z)} \Bigl[\log \Bigl(1-D \bigl( G(z) \bigr) \Bigr) \Bigr] \\  
+    &= \int_{x} p_{data}(x) \log ( D(x) )dx + \int_{z} p_z (z) \log (1 - D( G(z) ))dz \\  
+    &= \int_{x} \underbrace{p_{data}(x) \log ( D(x) ) + p_g(x) \log(1 - D(x))}_{(*)} dx \\  
+    \end{align}
+$$
+
+$$
+    a \log(y) + b \log (1 - y) \tag{4}
+$$
+
++ (1)→(2): 
+    + 微分しやすいよう変形
+    + 連続値なので$\int$で表す
++ (2)→(3): 
+    + $z$が扱いづらいので、$p_z→p_g, \space G(x)→x$と置き換える  
+    + $\int$を一つにまとめる
++ (3)→(4): 
+    + 下括弧(*)の部分を$y = D(x), a = p_{data}(x), b = p_g(x)$と置く
+
+$a \log(y) + b \log (1 - y)$の極値を求める
+
++ $a \log(y) + b \log (1 - y)$を$y$で微分
+
+$$
+    \begin{split}
+        &\frac{a}{y} + \frac{b}{1-y} (-1) = 0 \\  
+        & y = \frac{a}{a + b}
+    \end{split}
+$$
+
+$y = D(x), a = p_{data}(x), b = p_g(x)$なので  
+
+$$
+    D(x) = \frac{p_{data}(x)}{p_{data}(x) + p_g (x)}
+$$
+
+→価値関数が最大値をとるときの$D(x)$が判明  
+
+【Step2: 価値関数はいつ最小化する？】  
+
++ 価値関数の$D(x)$を$\frac{p_{data}(x)}{p_{data}(x) + p_g (x)}$で置き換え  
+
+$$
+    \begin{split}
+        V &= \mathbb{E}_{x \verb|~|p_{data}} \log 
+        \left[
+            \frac{p_{data}(x)}{p_{data}(x) + p_g (x)}
+        \right] +
+        \mathbb{E}_{x \verb|~|p_g} \log 
+        \left[
+            1 - \frac{p_{data}(x)}{p_{data}(x) + p_g (x)}
+        \right] \\  
+        &= \mathbb{E}_{x \verb|~|p_{data}} \log 
+        \left[
+            \frac{p_{data}(x)}{p_{data}(x) + p_g (x)}
+        \right] +
+        \mathbb{E}_{x \verb|~|p_g} \log 
+        \left[
+            \frac{p_g(x)}{p_{data}(x) + p_g (x)}
+        \right] \\  
+    \end{split}
+$$
+
++ ２つの確率分布$p_{data}, p_g$がどれくらい近いのか調べる必要あり
+    + JSダイバージェンス：有名な指標
+        + JS: Jensen Shannon(人名)
+        + 特徴
+            + 非負
+            + 分布が一致する時のみ0の値をとる
+
+        $$
+            JS(p_1\|p_2) = \frac{1}{2} (\mathbb{E}_{x\verb|~|p_1} \log (\frac{2p_1}{p_1 + p_2}) + \mathbb{E}_{x\verb|~|p_2} \log (\frac{2p_2}{p_1 + p_2})
+        $$
+
++ 価値関数を変形
+
+$$
+    \begin{split}
+        V &= \mathbb{E}_{x \verb|~|p_{data}} \log 
+        \left[
+            \frac{p_{data}(x)}{p_{data}(x) + p_g (x)}
+        \right] +
+        \mathbb{E}_{x \verb|~|p_g} \log 
+        \left[
+            1 - \frac{p_{data}(x)}{p_{data}(x) + p_g (x)}
+        \right] \\  
+        &= \mathbb{E}_{x \verb|~|p_{data}} \log 
+        \left[
+            \frac{2p_{data}(x)}{p_{data}(x) + p_g (x)}
+        \right] +
+        \mathbb{E}_{x \verb|~|p_g} \log 
+        \left[
+            \frac{2p_g(x)}{p_{data}(x) + p_g (x)}
+        \right] - 2 \log 2 \\  
+        &= 2JS(p_{data}\|p_g) -  2log2
+    \end{split}
+$$
+
++ $\underset{G}{\min}V$は$p_{data} = p_g$のときに最小値となる(-2log2 $\approx$ -1.386)
++ GANの学習により、Gは本物のようなデータを生成できる
+
+## DCGANについて
+
+### 具体的なネットワーク構造
+
+## 応用技術の紹介
+
+### 概要
 
 ---
 
@@ -1515,3 +1812,40 @@ $$
         ERROR: HTTP error 403 while getting http://download.pytorch.org/whl/cu80/torch-0.4.0-cp37-cp37m-linux_x86_64.whl
         ERROR: Could not install requirement torch==0.4.0 from http://download.pytorch.org/whl/cu80/torch-0.4.0-cp37-cp37m-linux_x86_64.whl because of HTTP error 403 Client Error: Forbidden for url: http://download.pytorch.org/whl/cu80/torch-0.4.0-cp37-cp37m-linux_x86_64.whl for URL http://download.pytorch.org/whl/cu80/torch-0.4.0-cp37-cp37m-linux_x86_64.whl
         ```
+
+## lecture_chap2_exercise_public.ipynb
+
+実行結果
+
+### 1. データセット
+
+![1.1.1]({{site.baseurl}}/images/20211220.png)  
+
+### 2. 各モジュールの定義
+
+#### ①Position Encoding
+
+![2.1.1]({{site.baseurl}}/images/20211220_1.png)  
+
+#### ④Masking
+
+![2.1.1]({{site.baseurl}}/images/20211220_2.png)  
+
+![2.1.2]({{site.baseurl}}/images/20211220_3.png)  
+
+### 4. 学習
+
+![4.1.1]({{site.baseurl}}/images/20211220_4.png)  
+![4.1.2]({{site.baseurl}}/images/20211220_5.png)  
+![4.1.3]({{site.baseurl}}/images/20211220_6.png)  
+
+### 5. 評価
+
+![5.1.1]({{site.baseurl}}/images/20211220_7.png)  
+
+![5.1.2]({{site.baseurl}}/images/20211220_8.png)  
+
+#### BLEUの評価
+
+![5.2.1]({{site.baseurl}}/images/20211220_9.png)  
+
