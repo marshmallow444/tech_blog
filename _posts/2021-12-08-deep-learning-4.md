@@ -1347,9 +1347,9 @@ Generatorを固定
 $$
     \begin{align}
         V(D, G) &= \mathbb{E}_{x \verb|~| p_{data}(x)}[\log D(x)]
-    + \mathbb{E}_{x \verb|~|p_z(z)} \Bigl[\log \Bigl(1-D \bigl( G(z) \bigr) \Bigr) \Bigr] \\  
-    &= \int_{x} p_{data}(x) \log ( D(x) )dx + \int_{z} p_z (z) \log (1 - D( G(z) ))dz \\  
-    &= \int_{x} \underbrace{p_{data}(x) \log ( D(x) ) + p_g(x) \log(1 - D(x))}_{(*)} dx \\  
+    + \mathbb{E}_{x \verb|~|p_z(z)} \Bigl[\log \Bigl(1-D \bigl( G(z) \bigr) \Bigr) \Bigr] \tag{1} \\  
+    &= \int_{x} p_{data}(x) \log ( D(x) )dx + \int_{z} p_z (z) \log (1 - D( G(z) ))dz \tag{2} \\  
+    &= \int_{x} \underbrace{p_{data}(x) \log ( D(x) ) + p_g(x) \log(1 - D(x))}_{(*)} dx \tag{3} \\  
     \end{align}
 $$
 
@@ -1448,13 +1448,114 @@ $$
 + $\underset{G}{\min}V$は$p_{data} = p_g$のときに最小値となる(-2log2 $\approx$ -1.386)
 + GANの学習により、Gは本物のようなデータを生成できる
 
+【学習ステップの可視化】  
+
+[![learning steps](https://cdn-ak.f.st-hatena.com/images/fotolife/r/ryosuke_okubo/20190909/20190909081909.png)](https://cdn-ak.f.st-hatena.com/images/fotolife/r/ryosuke_okubo/20190909/20190909081909.png)  
+(画像：[https://ryosuke-okubo.hatenablog.com/entry/2019/09/30/210000_1](https://ryosuke-okubo.hatenablog.com/entry/2019/09/30/210000_1))  
+
++ グラフの意味
+    + $z$は$G(z)$へ入力され、$x$に変換される
+    + 緑の実線グラフ$p_g$: $x$の分布
+    + 黒の点線グラフ$p_{data}$: 実データの分布
+    + 青の点線グラフ$D(x)$: Discriminatorの出力結果(判定)
++ (a)
+    + 初期状態：$D(x)$の出力がいびつ
++ (b)
+    + $\theta_d$を更新→$D(x)$の精度が向上
++ (c)
+    + $\theta_g$を更新→$p_g$が$p_{data}$に近づく
++ (d)
+    + 学習終了：$p_g$ = $p_{data}$  
+    ↑$\theta_d$と$\theta_g$の更新を繰り返した結果
+    + Discriminatorは真データと偽データの見分けがつかなくなり、1/2を出力する
+
 ## DCGANについて
 
++ Deep Convolutional GAN
++ GANを利用した画像生成モデル
++ いくつかの構造制約により生成品質を向上
+    + Generator
+        + Pooling層の代わりに<u>転置畳み込み層</u>を使用
+            + 転置畳み込み層：以前は違う名前で呼ばれていたので注意
+        + 最終層はtanhで活性化：とりうる値の範囲を決めたいため
+        + その他の層はReLU関数で活性化：層が深いため
+    + Discriminator
+        + Pooling層の代わりに畳み込み層を使用
+        + Leaky ReLU関数で活性化
+    + 共通事項
+        + 中間層に全結合層を使わない
+        + バッチノーマライゼーションを適用
+
 ### 具体的なネットワーク構造
+
+[![Network](https://cdn-ak.f.st-hatena.com/images/fotolife/M/May-kwi/20171121/20171121183832.png)](https://cdn-ak.f.st-hatena.com/images/fotolife/M/May-kwi/20171121/20171121183832.png)  
+(画像：[https://nurunuru-computer.hatenablog.com/entry/2017/11/21/184356](https://nurunuru-computer.hatenablog.com/entry/2017/11/21/184356))  
+
++ Generator
+    + 転置畳み込み層により乱数を画像にアップサンプリング
++ Discriminator
+    + 畳み込み層により画像から特徴量を抽出
+    + 最終層をsigmoid関数で活性化
 
 ## 応用技術の紹介
 
 ### 概要
+
++ First Bi-layer Neural Synthesis of One-Shot Realistic Head Avatars
++ 1枚の顔画像から動画像(Avatar)を高速に生成するモデル
+
+[![Avatars](https://saic-violet.github.io/bilayer-model/assets/visuals_self.gif)](https://saic-violet.github.io/bilayer-model/assets/visuals_self.gif)  
+(画像：[https://saic-violet.github.io/bilayer-model/](https://saic-violet.github.io/bilayer-model/))  
+
+【一般的な顔アバター生成フロー】  
+
++ 初期化部：人物の特徴を抽出 1アバターにつき1回の計算
++ 推論部：所望の動きをつける 時間フレーム分の計算
+
+[![Flow](https://saic-violet.github.io/bilayer-model/assets/teaser.png)](https://saic-violet.github.io/bilayer-model/assets/teaser.png)  
+(画像：[https://saic-violet.github.io/bilayer-model/](https://saic-violet.github.io/bilayer-model/))  
+
++ 計算コストの比較
+    + 従来：初期化の計算コストが小さく、推論部の計算コストが大きい
+    + 提案：初期化の計算コストが大きく、<u>推論部の計算コストが小さい</u>
+        + →リアルタイムで推論できる
+
+【推論部の計算コスト削減方法】  
+
++ 緻密な輪郭と荒い顔画像を別々に生成し結合する
+    + 初期化時に輪郭情報を生成(ポーズに非依存)
+    + 推論時に荒い顔画像を生成(ポーズに依存)
+
+[![reducing cost](https://saic-violet.github.io/bilayer-model/assets/visuals_comp.gif)](https://saic-violet.github.io/bilayer-model/assets/visuals_comp.gif)  
+(画像：[https://saic-violet.github.io/bilayer-model/](https://saic-violet.github.io/bilayer-model/))  
+
+【ネットワーク構造】   
+
++ 輪郭画像と低周波動画像を別々に生成
+
+[![architecture](https://saic-violet.github.io/bilayer-model/assets/scheme.png)](https://saic-violet.github.io/bilayer-model/assets/scheme.png)  
+(画像：[https://saic-violet.github.io/bilayer-model/](https://saic-violet.github.io/bilayer-model/))  
+
++ 初期化部(左半分)
+    + Embedder
+        + 入力：画像、ポーズ情報
+        + 出力：特徴量
+    + Texture Generator
+        + 入力：Avatar特徴量
+        + 出力：Avatarの輪郭情報
+        + 一人のAvatarにつき1回生成
+        + 計算量が大きい
++ 推論部(右半分)
+    + Inference Generator
+        + 入力：所望のポーズ
+        + 出力：Warping Field, 低周波動画像
+        + 入力のフレーム数だけ生成
+        + 計算量が小さい
+    + 最終出力：所望のポーズで動くアバター
+
+【実装例】  
+
+[https://github.com/studyai-team/Face_App](https://github.com/studyai-team/Face_App)  
 
 ---
 
@@ -1686,28 +1787,61 @@ $$
             ![graph]({{site.baseurl}}/images/20211215_38.png)  
     + 分類(mnist)
         + 実行結果
+            ![mnist]({{site.baseurl}}/images/20211215_23.png)  
+            ![graph]({{site.baseurl}}/images/20211215_24.png)  
         + [try]load_mnistのone_hot_labelをFalseに変更しよう (error)
             ![error]({{site.baseurl}}/images/20211215_39.png)  
-        + [try]誤差関数をsparse_categorical_crossentropyに変更しよう
-        + [try]Adamの引数の値を変更しよう
+        + [try]誤差関数をsparse_categorical_crossentropyに変更しよう  
+            →load_mnistのone_hot_labelをFalseにしたままでないとエラーになる  
+            ![sparse_categorical_crossentropy]({{site.baseurl}}/images/20211221_13.png)  
+            ![graph]({{site.baseurl}}/images/20211221_14.png)  
+        + [try]Adamの引数の値を変更しよう  
+            + 以下のようにしてみる  
+                ```Python
+                Adam(lr=0.01, beta_1=0.1, beta_2=0.001, epsilon=keras.backend.epsilon(), decay=0.0, amsgrad=True)
+                ```
+                ![adam_changed_param1]({{site.baseurl}}/images/20211221_7.png)  
+                ![graph]({{site.baseurl}}/images/20211221_8.png)  
+            +  以下のようにしてみる  
+                ```Python
+                Adam(lr=0.1, beta_1=0., beta_2=0.5, epsilon=keras.backend.epsilon(), decay=0.5, amsgrad=False)
+                ```
+                ![adam_changed_param2]({{site.baseurl}}/images/20211221_9.png)  
+                ![graph]({{site.baseurl}}/images/20211221_10.png)  
+            +  以下のようにしてみる  
+                ```Python
+                Adam(lr=0.9, beta_1=0.5, beta_2=0.5, epsilon=keras.backend.epsilon(), decay=0.9, amsgrad=False)
+                ```
+                ![adam_changed_param3]({{site.baseurl}}/images/20211221_11.png)  
+                ![graph]({{site.baseurl}}/images/20211221_12.png)  
     + CNN分類(mnist)
-        + 実行結果
-            ![cnn mnist]({{site.baseurl}}/images/20211215_23.png)  
-            ![graph]({{site.baseurl}}/images/20211215_24.png)  
-    + cifar10
         + 実行結果
             ![cifar10]({{site.baseurl}}/images/20211215_25.png)  
             ![graph]({{site.baseurl}}/images/20211215_26.png)  
+    + cifar10
+        + 実行結果
+            ![cifar10]({{site.baseurl}}/images/20211215_27.png)  
     + RNN
         + 実行結果
-            ![RNN]({{site.baseurl}}/images/20211215_27.png)  
-        + [try]RNNの出力ノード数を128に変更
-        + [try]RNNの出力活性化関数を sigmoid に変更
-        + [try]RNNの出力活性化関数を tanh に変更
-        + [try]最適化方法をadamに変更
-        + [try]RNNの入力 Dropout を0.5に設定
-        + [try]RNNの再帰 Dropout を0.3に設定
-        + [try]RNNのunrollをTrueに設定
+            ![RNN]({{site.baseurl}}/images/20211215_28.png)  
+        + [try]RNNの出力ノード数を128に変更  
+            →より早い段階から、高い精度が出ている  
+            ![128nodes]({{site.baseurl}}/images/20211221.png)  
+        + [try]RNNの出力活性化関数を sigmoid に変更  
+            ![sigmoid]({{site.baseurl}}/images/20211221_1.png)  
+        + [try]RNNの出力活性化関数を tanh に変更  
+            ![tanh]({{site.baseurl}}/images/20211221_2.png)  
+        + [try]最適化方法をadamに変更  
+            →少し精度が落ちた  
+            ![adam]({{site.baseurl}}/images/20211221_3.png)  
+        + [try]RNNの入力 Dropout を0.5に設定  
+            →さらに精度が落ちた  
+            ![dropout=0.5]({{site.baseurl}}/images/20211221_4.png)  
+        + [try]RNNの再帰 Dropout を0.3に設定  
+            ![recurrent_dropout=0.3]({{site.baseurl}}/images/20211221_5.png)  
+        + [try]RNNのunrollをTrueに設定  
+            →精度が高く、学習にかかる時間も半分くらいになった   
+            ![unroll]({{site.baseurl}}/images/20211221_6.png)  
 + (メモ)
     + 以下のコードはエラーになり動かなかったので修正
         + 分類(iris) L.35, 36など
