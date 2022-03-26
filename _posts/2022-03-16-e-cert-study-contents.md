@@ -4,7 +4,7 @@ title: "【E資格】2022#1 参考になったコンテンツ"
 tags: E資格 機械学習
 ---
 
-JDLA [E資格](https://www.jdla.org/certificate/engineer/) 2022#1を受験したので、参考になった本・動画・サイトをまとめておく。  
+JDLA [E資格](https://www.jdla.org/certificate/engineer/) 2022#1を受験したので、参考になった書籍・動画・サイトをまとめておく。  
 今回のE資格受験についてまとめた記事は[こちら](./e-cert.html)。  
 
 <br>
@@ -23,7 +23,7 @@ JDLA [E資格](https://www.jdla.org/certificate/engineer/) 2022#1を受験した
 
 <br>
 
-## 本
+## 書籍
 
 - [<u>徹底攻略ディープラーニングE資格エンジニア問題集 第2版</u>](https://book.impress.co.jp/books/1120101184)
     - (出題範囲全般)

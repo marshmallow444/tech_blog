@@ -5,7 +5,7 @@ tags: ラビット・チャレンジ E資格 機械学習
 ---
 
 JDLA [E資格](https://www.jdla.org/certificate/engineer/)2022#1を受験したので、いつどんなことをしたかメモを残しておく。  
-受講した講座は[ラビット・チャレンジ](https://ai999.careers/rabbit/)。  
+受講した講座は[ラビット・チャレンジ](https://ai999.careers/rabbit/)。(この講座についてのまとめは[こちら](./e-cert-rabbit-challenge.html))  
 今回のE資格受験についてまとめた記事は[こちら](./e-cert.html)。  
 勉強に使った教材は[こちら](./e-cert-study-contents.html)。
 
